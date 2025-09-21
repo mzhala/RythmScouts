@@ -7,4 +7,23 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background_color">#FFFFFFFF</color>
+
+    <color name="colorPrimary">#37738B</color>          <!-- main app color -->
+    <color name="colorPrimaryVariant">#37738B80</color> <!-- 50% opacity version -->
+    <color name="colorOnPrimary">#FFFFFF</color>        <!-- text on primary -->
+
+    <color name="colorSecondary">#64748B</color>        <!-- secondary text -->
+    <color name="colorOnSecondary">#FFFFFF</color>
+
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorOnBackground">#000000</color>
+
+    <color name="colorNavigationSelected">#37738B</color>
+    <color name="colorNavigationUnselected">#000000</color> <!-- <color name="colorNavigationUnselected">#9DB2CE</color>-->
+
+    <color name="colorButtonBackground">#000000</color>
+    <color name="colorButtonText">#FFFFFF</color>
+
+
 </resources>

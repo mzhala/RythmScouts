@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "132190124105",
+    "firebase_url": "https://rythmscouts-default-rtdb.firebaseio.com",
+    "project_id": "rythmscouts",
+    "storage_bucket": "rythmscouts.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132190124105:android:b5bc5a6aef781f4e83e798",
+        "android_client_info": {
+          "package_name": "com.example.rythmscouts"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANrvt6pyIY0qBFYJE9cpLmKiDEdPw7GNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

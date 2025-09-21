@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Selected item -->
+    <item android:state_checked="true" android:drawable="@drawable/nav_item_background_selected"/>
+
+    <!-- Unselected item -->
+    <item android:drawable="@android:color/transparent"/> <!-- or use @color/background_color -->
+</selector>
