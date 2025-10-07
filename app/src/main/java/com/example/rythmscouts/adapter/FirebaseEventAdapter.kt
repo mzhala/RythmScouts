@@ -86,10 +86,20 @@ class FirebaseEventAdapter(
             event.id?.let { eventId ->
                 dbRef.child(eventId).get().addOnSuccessListener { snapshot ->
                     if (snapshot.exists()) {
-                        dbRef.child(eventId).removeValue()
-                        holder.saveButton.text = "Save"
-                        showEventStatusDialog(holder.itemView.context, false)
+                        // Remove from Firebase
+                        dbRef.child(eventId).removeValue().addOnSuccessListener {
+                            holder.saveButton.text = "Save"
+                            showEventStatusDialog(holder.itemView.context, false)
+
+                            // Remove from adapter's list
+                            val position = holder.adapterPosition
+                            if (position != RecyclerView.NO_POSITION) {
+                                events = events.toMutableList().apply { removeAt(position) }
+                                notifyItemRemoved(position)
+                            }
+                        }
                     } else {
+                        // Add to Firebase (same as before)
                         val eventData = mapOf(
                             "id" to event.id,
                             "name" to event.name,
@@ -109,6 +119,7 @@ class FirebaseEventAdapter(
                 }
             }
         }
+
     }
 
     fun updateData(newEvents: List<FirebaseEvent>) {

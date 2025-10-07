@@ -25,5 +25,8 @@
     <color name="colorButtonBackground">#000000</color>
     <color name="colorButtonText">#FFFFFF</color>
 
+    <color name="toggle_selected">#9CB8C4</color>
+    <color name="toggle_text">#000000</color> <!-- black text -->
+
 
 </resources>
