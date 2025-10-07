@@ -6,14 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:padding="16dp">
+    android:padding="8dp">
 
     <!-- Toggle Button Group -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         app:singleSelection="true"
         app:selectionRequired="true">
 
@@ -22,8 +21,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Saved Events"
+            android:text="Upcoming Events"
             android:textSize="14sp"
+            android:textColor="@color/toggle_button_text"
+            android:backgroundTint="@color/toggle_button_bg"
+            app:strokeColor="@color/toggle_selected"
+            app:strokeWidth="2dp"
             style="@style/Widget.Material3.Button.OutlinedButton" />
 
         <com.google.android.material.button.MaterialButton
@@ -33,16 +36,20 @@
             android:layout_weight="1"
             android:text="Past Events"
             android:textSize="14sp"
+            android:textColor="@color/toggle_button_text"
+            android:backgroundTint="@color/toggle_button_bg"
+            app:strokeColor="@color/toggle_selected"
+            app:strokeWidth="2dp"
             style="@style/Widget.Material3.Button.OutlinedButton" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
+
 
     <!-- Events Count -->
     <TextView
         android:id="@+id/eventsCountTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2 events"
         android:textSize="14sp"
         android:textColor="#666666"
         android:layout_marginTop="16dp" />
