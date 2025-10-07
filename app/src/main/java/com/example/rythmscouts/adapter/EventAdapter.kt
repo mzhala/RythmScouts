@@ -17,6 +17,7 @@ import com.example.rythmscouts.R
 import com.example.rythmscouts.network.Event
 import com.google.firebase.database.FirebaseDatabase
 import androidx.appcompat.app.AlertDialog
+import com.example.rythmscouts.network.EventVenueEmbedded
 
 class EventAdapter(
     private var events: List<Event>,
@@ -71,7 +72,7 @@ class EventAdapter(
         }
 
         holder.date.text = formattedDate
-        holder.venue.text = event._embedded?.venues?.firstOrNull()?.name ?: "Unknown Venue"
+        holder.venue.text = (event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()?.name ?: "Unknown venue"
 
         val imageUrl = event.images.firstOrNull()?.url
         if (imageUrl != null) {
@@ -108,9 +109,13 @@ class EventAdapter(
                     val eventData = mapOf(
                         "id" to event.id,
                         "name" to (event.name ?: "Unknown Event"),
+                        "date_raw" to dateStr,  // for queries
+                        "time_raw" to timeStr,  // for queries
                         "date" to formattedDate,
-                        "venue" to (event._embedded?.venues?.firstOrNull()?.name ?: "Unknown Venue"),
-                        "imageUrl" to (event.images.firstOrNull()?.url ?: "")
+                        "venue" to ((event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()?.name ?: "Unknown Venue"),
+                        "imageUrl" to (event.images.firstOrNull()?.url ?: ""),
+                        "buyUrl" to (event.url ?: "") // <-- save ticket URL here
+
                     )
 
                     dbRef.child(eventId).setValue(eventData)

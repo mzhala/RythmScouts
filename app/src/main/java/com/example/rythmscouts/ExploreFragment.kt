@@ -58,16 +58,27 @@ class ExploreFragment : Fragment() {
     private fun setupSearch() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let {
-                    val selectedCity = if (citySpinner.selectedItemPosition == 0) null else cities[citySpinner.selectedItemPosition]
-                    fetchEvents(it, selectedCity)
-                }
+                performSearch(query)
                 return true
             }
 
-            override fun onQueryTextChange(newText: String?) = false
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Reset events immediately when search is cleared
+                if (newText.isNullOrBlank()) {
+                    performSearch(null)
+                }
+                return true
+            }
         })
     }
+
+    private fun performSearch(query: String?) {
+        val searchQuery = if (query.isNullOrBlank()) "music" else query
+        val selectedCity = if (citySpinner.selectedItemPosition == 0) null else cities[citySpinner.selectedItemPosition]
+        fetchEvents(searchQuery, selectedCity)
+    }
+
+
 
     private fun setupSpinner() {
         val adapterSpinner = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, cities)

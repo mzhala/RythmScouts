@@ -13,7 +13,7 @@ data class Event(
     val url: String,
     val images: List<Image>,
     val dates: Dates,
-    val _embedded: EventVenueEmbedded?,
+    val _embedded: Embedded,
     val id: String
 )
 
