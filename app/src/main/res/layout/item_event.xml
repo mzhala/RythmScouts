@@ -41,4 +41,12 @@
         android:layout_marginTop="2dp"
         android:text="Event Venue" />
 
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:layout_marginTop="8dp"/>
+
+
 </LinearLayout>

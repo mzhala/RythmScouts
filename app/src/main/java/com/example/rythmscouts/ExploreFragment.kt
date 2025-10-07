@@ -44,7 +44,8 @@ class ExploreFragment : Fragment() {
         citySpinner = view.findViewById(R.id.citySpinner)  // ✅ added
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = EventAdapter(emptyList())
+        adapter = EventAdapter(emptyList(), username = "testing-user")
+
         recyclerView.adapter = adapter
 
         setupSpinner()
