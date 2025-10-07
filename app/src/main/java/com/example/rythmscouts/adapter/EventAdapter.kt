@@ -1,10 +1,13 @@
 package com.example.rythmscouts.adapter
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -47,6 +50,7 @@ class EventAdapter(
         val dateStr = event.dates.start.localDate
         val timeStr = event.dates.start.localTime
 
+
         val formattedDate = try {
             if (!timeStr.isNullOrEmpty()) {
                 // Both date and time available
@@ -80,6 +84,18 @@ class EventAdapter(
 
         dbRef.child(eventId).get().addOnSuccessListener { snapshot ->
             holder.saveButton.text = if (snapshot.exists()) "Unsave" else "Save"
+        }
+
+        val buyButton: ImageButton = holder.itemView.findViewById(R.id.buyTicketsButton)
+
+        if (!event.url.isNullOrEmpty()) {
+            buyButton.visibility = View.VISIBLE
+            buyButton.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(event.url))
+                holder.itemView.context.startActivity(intent)
+            }
+        } else {
+            buyButton.visibility = View.GONE
         }
 
         holder.saveButton.setOnClickListener {

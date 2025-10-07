@@ -41,12 +41,38 @@
         android:layout_marginTop="2dp"
         android:text="Event Venue" />
 
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save"
-        android:layout_marginTop="8dp"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Save"
+            android:layout_marginTop="8dp" />
+
+        <!-- Pushes the second button to the far right -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/buyTicketsButton"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/buy_tickets"
+            android:src="@drawable/ic_ticket"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:visibility="visible" />
+
+
+    </LinearLayout>
 
 </LinearLayout>
