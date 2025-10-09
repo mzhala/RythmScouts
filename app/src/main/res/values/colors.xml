@@ -29,4 +29,9 @@
     <color name="toggle_text">#000000</color> <!-- black text -->
 
 
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="gray_300">#FFE0E0E0</color>
+    <color name="gray_500">#FF9E9E9E</color>
+    <color name="gray_700">#FF616161</color>
 </resources>
