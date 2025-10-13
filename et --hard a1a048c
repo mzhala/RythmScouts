@@ -1,0 +1,18 @@
+[33m2a59c69[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Merge branch 'main' of https://github.com/mzhala/RythmScouts
+[33m2db53a9[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fixed error in build file
+[33ma634c71[m feat(explore): updated search bar style
+[33md03a4f2[m Merge remote-tracking branch 'origin/main'
+[33m3f1fef1[m Added sign up, sign in and reset password
+[33ma1a048c[m feat(my events): updated toggle button styling
+[33me509e82[m feat(my events): updated unsave button, to update recycler so event is removed from my events page.
+[33m9e10bff[m feat(my events): updated my events page to read from firebase dabatabase
+[33mdc19db5[m feat(event explore): updated the event adapter  to include ticket button link
+[33m6af5711[m feat(event explore): updated save/unsave button to include popup
+[33mf156fdd[m feat(event explore): updated events to allow user to save/unsave events
+[33m6c1efed[m Updated app icon
+[33m1fa0cae[m Updated file item_event to match new API pull
+[33mcc39e1c[m Merge branch 'main' of https://github.com/mzhala/RythmScouts
+[33m162f5dd[m feat(event explore): updated explore layout and kotlin
+[33m6a38485[m Configured Main Events page to include necessary code
+[33m3abe18d[m feat(navigation): add bottom navigation with dynamic headers
+[33mf13e0d2[m Initial Commit
