@@ -21,7 +21,8 @@ import com.example.rythmscouts.network.EventVenueEmbedded
 
 class EventAdapter(
     private var events: List<Event>,
-    private val username: String = "testing-user"
+    private val username: String = "testing-user",
+    var savedEventIds: List<String> = emptyList()
 ) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
     class EventViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -47,7 +48,6 @@ class EventAdapter(
 
         holder.title.text = event.name ?: "Unknown Event"
 
-        // Format date and time
         val dateStr = event.dates.start.localDate
         val timeStr = event.dates.start.localTime
         val formattedDate = try {
@@ -70,7 +70,7 @@ class EventAdapter(
         holder.venue.text = venue?.let { "${it.name}, ${it.city.name}" } ?: "Unknown Venue"
 
         val imageUrl = event.images.firstOrNull()?.url
-        if (imageUrl != null) {
+        if (!imageUrl.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
                 .load(imageUrl)
                 .into(holder.image)
@@ -78,10 +78,8 @@ class EventAdapter(
 
         val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(username)
 
-        // Initialize button text
-        dbRef.child(eventId).get().addOnSuccessListener { snapshot ->
-            holder.saveButton.text = if (snapshot.exists()) "Unsave" else "Save"
-        }
+        // Set button text based on savedEventIds
+        holder.saveButton.text = if (savedEventIds.contains(eventId)) "Unsave" else "Save"
 
         val buyButton: ImageButton = holder.itemView.findViewById(R.id.buyTicketsButton)
         if (!event.url.isNullOrEmpty()) {
@@ -94,13 +92,14 @@ class EventAdapter(
             buyButton.visibility = View.GONE
         }
 
-        // Save/Unsave logic
+        // Save/Unsave button
         holder.saveButton.setOnClickListener {
             dbRef.child(eventId).get().addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
                     dbRef.child(eventId).removeValue()
                     holder.saveButton.text = "Save"
                     showEventStatusDialog(holder.itemView.context, false)
+                    savedEventIds = savedEventIds - eventId
                 } else {
                     val eventData = mapOf(
                         "id" to event.id,
@@ -119,6 +118,7 @@ class EventAdapter(
                     dbRef.child(eventId).setValue(eventData)
                         .addOnSuccessListener {
                             holder.saveButton.text = "Unsave"
+                            savedEventIds = savedEventIds + eventId
                             showEventStatusDialog(holder.itemView.context, true)
                         }
                         .addOnFailureListener { e -> e.printStackTrace() }
@@ -132,7 +132,7 @@ class EventAdapter(
         notifyDataSetChanged()
     }
 
-    // Popup for event saved/unsaved
+    // Popup for saved/unsaved events with Close button
     private fun showEventStatusDialog(context: android.content.Context, saved: Boolean) {
         val dialogView = LayoutInflater.from(context)
             .inflate(R.layout.dialog_event_status, null)
@@ -140,7 +140,7 @@ class EventAdapter(
         val imageView: ImageView = dialogView.findViewById(R.id.statusImage)
         val title: TextView = dialogView.findViewById(R.id.statusTitle)
         val message: TextView = dialogView.findViewById(R.id.statusMessage)
-        val closeButton: Button = dialogView.findViewById(R.id.closeButton) // add a Button in your XML
+        val closeButton: Button = dialogView.findViewById(R.id.closeButton) // make sure your XML has this button
 
         if (saved) {
             imageView.setImageResource(R.drawable.ic_saved)
@@ -156,11 +156,8 @@ class EventAdapter(
             .setView(dialogView)
             .create()
 
-        closeButton.setOnClickListener {
-            dialog.dismiss()
-        }
+        closeButton.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }
-
 }

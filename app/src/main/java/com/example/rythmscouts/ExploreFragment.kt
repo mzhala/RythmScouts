@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,12 +11,15 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SearchView
 import android.widget.Spinner
+import android.widget.ProgressBar
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rythmscouts.adapter.EventAdapter
 import com.example.rythmscouts.network.RetrofitClient
 import com.example.rythmscouts.network.TicketmasterApi
 import com.example.rythmscouts.network.TicketmasterResponse
+import com.google.firebase.database.FirebaseDatabase
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,6 +30,7 @@ class ExploreFragment : Fragment() {
     private lateinit var adapter: EventAdapter
     private lateinit var searchView: SearchView
     private lateinit var citySpinner: Spinner
+    private lateinit var progressBar: ProgressBar
 
     private val apiKey = "1A1i0hOsTyaaIstcAYpvNAmKjd84Kq3o"
     private val cities = listOf("All Cities", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth")
@@ -44,6 +47,7 @@ class ExploreFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         searchView = view.findViewById(R.id.searchView)
         citySpinner = view.findViewById(R.id.citySpinner)
+        progressBar = view.findViewById(R.id.progressBar)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = EventAdapter(emptyList(), username = "testing-user")
@@ -92,32 +96,40 @@ class ExploreFragment : Fragment() {
     }
 
     private fun fetchEvents(query: String, city: String? = null) {
+        progressBar.visibility = View.VISIBLE
+
         val api = RetrofitClient.instance.create(TicketmasterApi::class.java)
         api.searchEvents(apiKey, query, null).enqueue(object : Callback<TicketmasterResponse> {
             override fun onResponse(call: Call<TicketmasterResponse>, response: Response<TicketmasterResponse>) {
+                progressBar.visibility = View.GONE
+
                 if (response.isSuccessful) {
                     val events = response.body()?._embedded?.events ?: emptyList()
 
-                    // Local filtering for partial search and city
                     val filteredEvents = events.filter { event ->
-                        // Partial match on event name
                         val matchesQuery = query.isBlank() || event.name.contains(query, ignoreCase = true)
-
-                        // City filter only applied if a city is selected
                         val matchesCity = city?.let { selectedCity ->
-                            event._embedded?.venues?.any { it.city.name.equals(selectedCity, ignoreCase = true) } ?: false
-                        } ?: true // if city == null, include all
-
+                            (event._embedded as? com.example.rythmscouts.network.EventVenueEmbedded)
+                                ?.venues?.any { it.city.name.equals(selectedCity, ignoreCase = true) } ?: false
+                        } ?: true
                         matchesQuery && matchesCity
                     }
 
-                    adapter.updateData(filteredEvents)
+                    // Get saved IDs from Firebase
+                    val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child("testing-user")
+                    dbRef.get().addOnSuccessListener { snapshot ->
+                        val savedEventIds = snapshot.children.mapNotNull { it.key }
+                        adapter.savedEventIds = savedEventIds
+                        adapter.updateData(filteredEvents)
+                    }
+
                 } else {
                     Log.e("ExploreFragment", "API Error: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<TicketmasterResponse>, t: Throwable) {
+                progressBar.visibility = View.GONE
                 t.printStackTrace()
             }
         })
