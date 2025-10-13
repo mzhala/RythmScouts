@@ -50,29 +50,24 @@ class EventAdapter(
         // Format date and time
         val dateStr = event.dates.start.localDate
         val timeStr = event.dates.start.localTime
-
-
         val formattedDate = try {
             if (!timeStr.isNullOrEmpty()) {
-                // Both date and time available
                 val inputFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 val outputFormat = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
-                val dateTime = java.time.LocalDateTime.parse("$dateStr ${timeStr}", inputFormat)
+                val dateTime = java.time.LocalDateTime.parse("$dateStr $timeStr", inputFormat)
                 dateTime.format(outputFormat)
             } else {
-                // Only date available
                 val inputFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 val outputFormat = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")
                 val date = java.time.LocalDate.parse(dateStr, inputFormat)
                 date.format(outputFormat)
             }
-        } catch (e: Exception) {
-            // Fallback if parsing fails
-            dateStr
-        }
+        } catch (e: Exception) { dateStr }
 
         holder.date.text = formattedDate
-        holder.venue.text = (event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()?.name ?: "Unknown venue"
+
+        val venue = (event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()
+        holder.venue.text = venue?.let { "${it.name}, ${it.city.name}" } ?: "Unknown Venue"
 
         val imageUrl = event.images.firstOrNull()?.url
         if (imageUrl != null) {
@@ -83,12 +78,12 @@ class EventAdapter(
 
         val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(username)
 
+        // Initialize button text
         dbRef.child(eventId).get().addOnSuccessListener { snapshot ->
             holder.saveButton.text = if (snapshot.exists()) "Unsave" else "Save"
         }
 
         val buyButton: ImageButton = holder.itemView.findViewById(R.id.buyTicketsButton)
-
         if (!event.url.isNullOrEmpty()) {
             buyButton.visibility = View.VISIBLE
             buyButton.setOnClickListener {
@@ -99,6 +94,7 @@ class EventAdapter(
             buyButton.visibility = View.GONE
         }
 
+        // Save/Unsave logic
         holder.saveButton.setOnClickListener {
             dbRef.child(eventId).get().addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
@@ -109,13 +105,15 @@ class EventAdapter(
                     val eventData = mapOf(
                         "id" to event.id,
                         "name" to (event.name ?: "Unknown Event"),
-                        "date_raw" to dateStr,  // for queries
-                        "time_raw" to timeStr,  // for queries
+                        "date_raw" to dateStr,
+                        "time_raw" to timeStr,
                         "date" to formattedDate,
-                        "venue" to ((event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()?.name ?: "Unknown Venue"),
+                        "venue" to (venue?.name ?: "Unknown Venue"),
+                        "city" to (venue?.city?.name ?: "Unknown City"),
                         "imageUrl" to (event.images.firstOrNull()?.url ?: ""),
-                        "buyUrl" to (event.url ?: "") // <-- save ticket URL here
-
+                        "buyUrl" to (event.url ?: ""),
+                        "latitude" to (venue?.location?.latitude ?: ""),
+                        "longitude" to (venue?.location?.longitude ?: "")
                     )
 
                     dbRef.child(eventId).setValue(eventData)
@@ -128,8 +126,6 @@ class EventAdapter(
             }
         }
     }
-
-
 
     fun updateData(newEvents: List<Event>) {
         events = newEvents
@@ -144,6 +140,7 @@ class EventAdapter(
         val imageView: ImageView = dialogView.findViewById(R.id.statusImage)
         val title: TextView = dialogView.findViewById(R.id.statusTitle)
         val message: TextView = dialogView.findViewById(R.id.statusMessage)
+        val closeButton: Button = dialogView.findViewById(R.id.closeButton) // add a Button in your XML
 
         if (saved) {
             imageView.setImageResource(R.drawable.ic_saved)
@@ -159,9 +156,11 @@ class EventAdapter(
             .setView(dialogView)
             .create()
 
-        dialog.show()
+        closeButton.setOnClickListener {
+            dialog.dismiss()
+        }
 
-        // Automatically dismiss after 2 seconds
-        dialog.window?.decorView?.postDelayed({ dialog.dismiss() }, 2000)
+        dialog.show()
     }
+
 }

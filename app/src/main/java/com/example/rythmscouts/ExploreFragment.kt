@@ -1,6 +1,8 @@
 package com.example.rythmscouts
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -28,10 +30,10 @@ class ExploreFragment : Fragment() {
     private lateinit var citySpinner: Spinner
 
     private val apiKey = "1A1i0hOsTyaaIstcAYpvNAmKjd84Kq3o"
+    private val cities = listOf("All Cities", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth")
 
-    private val cities = listOf(
-        "All Cities", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth"
-    )
+    private val handler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,44 +43,37 @@ class ExploreFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.recyclerView)
         searchView = view.findViewById(R.id.searchView)
-        citySpinner = view.findViewById(R.id.citySpinner)  // ✅ added
+        citySpinner = view.findViewById(R.id.citySpinner)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = EventAdapter(emptyList(), username = "testing-user")
-
         recyclerView.adapter = adapter
 
         setupSpinner()
         setupSearch()
 
-        fetchEvents("music") // initial load
+        fetchEvents("", null) // Initial load with all events
         return view
     }
 
     private fun setupSearch() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                performSearch(query)
-                return true
-            }
+            override fun onQueryTextSubmit(query: String?) = true
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Reset events immediately when search is cleared
-                if (newText.isNullOrBlank()) {
-                    performSearch(null)
+                // Debounce search input
+                searchRunnable?.let { handler.removeCallbacks(it) }
+                searchRunnable = Runnable {
+                    val searchQuery = newText ?: ""
+                    val selectedCity = if (citySpinner.selectedItemPosition == 0) null
+                    else cities[citySpinner.selectedItemPosition]
+                    fetchEvents(searchQuery, selectedCity)
                 }
+                handler.postDelayed(searchRunnable!!, 300)
                 return true
             }
         })
     }
-
-    private fun performSearch(query: String?) {
-        val searchQuery = if (query.isNullOrBlank()) "music" else query
-        val selectedCity = if (citySpinner.selectedItemPosition == 0) null else cities[citySpinner.selectedItemPosition]
-        fetchEvents(searchQuery, selectedCity)
-    }
-
-
 
     private fun setupSpinner() {
         val adapterSpinner = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, cities)
@@ -88,21 +83,35 @@ class ExploreFragment : Fragment() {
         citySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val selectedCity = if (position == 0) null else cities[position]
-                fetchEvents(searchView.query.toString(), selectedCity)
+                val query = searchView.query.toString()
+                fetchEvents(query, selectedCity)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 
-    private fun fetchEvents(query: String, city: String? = "") {
+    private fun fetchEvents(query: String, city: String? = null) {
         val api = RetrofitClient.instance.create(TicketmasterApi::class.java)
-
-        api.searchEvents(apiKey, query, city).enqueue(object : Callback<TicketmasterResponse> {
+        api.searchEvents(apiKey, query, null).enqueue(object : Callback<TicketmasterResponse> {
             override fun onResponse(call: Call<TicketmasterResponse>, response: Response<TicketmasterResponse>) {
                 if (response.isSuccessful) {
                     val events = response.body()?._embedded?.events ?: emptyList()
-                    adapter.updateData(events)
+
+                    // Local filtering for partial search and city
+                    val filteredEvents = events.filter { event ->
+                        // Partial match on event name
+                        val matchesQuery = query.isBlank() || event.name.contains(query, ignoreCase = true)
+
+                        // City filter only applied if a city is selected
+                        val matchesCity = city?.let { selectedCity ->
+                            event._embedded?.venues?.any { it.city.name.equals(selectedCity, ignoreCase = true) } ?: false
+                        } ?: true // if city == null, include all
+
+                        matchesQuery && matchesCity
+                    }
+
+                    adapter.updateData(filteredEvents)
                 } else {
                     Log.e("ExploreFragment", "API Error: ${response.code()}")
                 }

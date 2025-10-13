@@ -13,7 +13,7 @@ data class Event(
     val url: String,
     val images: List<Image>,
     val dates: Dates,
-    val _embedded: Embedded,
+    val _embedded: EventVenueEmbedded?,
     val id: String
 )
 
@@ -37,8 +37,13 @@ data class EventVenueEmbedded(
 data class Venue(
     val name: String,
     val city: City,
-    val country: Country
+    val country: Country,
+    val location: Location?
 )
 
+data class Location(
+    val longitude: String?,
+    val latitude: String?
+)
 data class City(val name: String)
 data class Country(val name: String)
