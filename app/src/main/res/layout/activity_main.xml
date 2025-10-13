@@ -98,10 +98,17 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:paddingTop="10dp"
-            app:itemTextColor="@color/colorNavigationUnselected"
-            app:itemIconTint="@color/colorNavigationUnselected"
-            app:itemBackground="@drawable/nav_item_background"
+
             android:background="@color/background_color"
+
+            app:labelVisibilityMode="labeled"
+            app:itemIconSize="24dp"
+            app:itemRippleColor="@null"
+            app:itemBackground="@drawable/nav_item_background"
+            app:itemIconTint="@color/colorNavigationUnselected"
+            app:itemTextColor="@color/colorNavigationUnselected"
+
+
             app:menu="@menu/bottom_nav_menu"/>
 
 

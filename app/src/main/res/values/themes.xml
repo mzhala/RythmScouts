@@ -1,7 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.RythmScouts" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
+    <style name="Theme.RythmScouts" parent="Theme.Material3.DayNight.NoActionBar">        <!-- Primary brand color. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item> <!-- 50% opacity version -->
         <item name="android:colorBackground">@color/colorBackground</item>
@@ -10,6 +9,8 @@
         <item name="colorOnSecondary">@color/colorOnSecondary</item>
 
         <item name="colorOnBackground">@color/colorOnBackground</item>
+
+        <item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView</item>
 
 
         <!-- Status bar color. -->
