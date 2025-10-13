@@ -8,4 +8,32 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="buy_tickets">buy_tickets</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Manage your account and preferences</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="profile_section">Profile</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="security_section">Security</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm New Password</string>
+    <string name="change_password">Change Password</string>
+    <string name="preferences_section">Preferences</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_desc">Toggle dark/light theme</string>
+    <string name="language">Language</string>
+    <string name="language_desc">Choose your preferred language</string>
+    <string name="push_notifications">Push Notifications</string>
+    <string name="notifications_desc">Get notified about events</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="sign_out_confirmation">Are you sure you want to sign out?</string>
+    <string name="select_language">Select Language</string>
+    <string name="profile_updated">Profile updated successfully</string>
+    <string name="password_changed">Password changed successfully</string>
+    <string name="signed_out">Signed out successfully</string>
 </resources>
