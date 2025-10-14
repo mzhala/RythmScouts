@@ -11,24 +11,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header Section -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_title"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_subtitle"
-            android:textSize="14sp"
-            android:textColor="@color/gray_700"
-            android:layout_marginBottom="24dp" />
-
         <!-- User Profile Section -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -40,7 +22,7 @@
                 android:id="@+id/profileImage"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:src="@drawable/ic_profile_placeholder"
+                android:src="@drawable/ic_default_profile_picture"
                 android:background="@drawable/circle_background"
                 android:layout_marginEnd="16dp" />
 
@@ -130,12 +112,6 @@
                     app:hintEnabled="false"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/lastNameEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:hint="@string/last_name" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -156,6 +132,13 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Update Profile Button -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/lastNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/last_name"
+            android:textSize="16sp" />
+
         <Button
             android:id="@+id/updateProfileButton"
             android:layout_width="match_parent"

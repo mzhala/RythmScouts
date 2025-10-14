@@ -13,7 +13,12 @@
           "package_name": "com.example.rythmscouts"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "132190124105-4vb44hee2egk8lqb256j0jm2lsisnuis.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyANrvt6pyIY0qBFYJE9cpLmKiDEdPw7GNk"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "132190124105-4vb44hee2egk8lqb256j0jm2lsisnuis.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -22,10 +22,10 @@ class MainActivity : AppCompatActivity() {
     private val settingsFragment = SettingsFragment()
     private lateinit var auth: FirebaseAuth
 
-    // Header views
     private lateinit var ivProfilePicture: ImageView
     private lateinit var tvTitle: TextView
     private lateinit var tvTitleText: TextView
+    private var userEmail: String? = null
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +35,9 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // Retrieve the email passed from SignInActivity
+        userEmail = intent.getStringExtra("USER_EMAIL")
+
         // Initialize header views
         ivProfilePicture = findViewById(R.id.profile_picture)
         tvTitle = findViewById(R.id.title)
@@ -42,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
 
-        // Set default fragment and header
+        // Set default fragment
         replaceFragment(homeFragment)
         bottomNavigation.menu.findItem(R.id.navigation_home).isChecked = true
         updateHeaderForSelectedPage(R.id.navigation_home)
@@ -57,21 +60,27 @@ class MainActivity : AppCompatActivity() {
             updateHeaderForSelectedPage(item.itemId)
             true
         }
+
+        // Optional: fetch user data from Firebase if needed
+        fetchUserDetails()
     }
 
     private fun replaceFragment(fragment: Fragment) {
+        // Pass user email to every fragment
+        val bundle = Bundle()
+        bundle.putString("USER_EMAIL", userEmail)
+        fragment.arguments = bundle
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
     }
 
-    // Update header based on selected navigation
     private fun updateHeaderForSelectedPage(menuItemId: Int) {
         when (menuItemId) {
             R.id.navigation_home -> {
                 tvTitle.text = "Rhythm Scout"
                 tvTitleText.text = "Discover amazing music events near you"
-                // optionally update profile picture here if needed
             }
             R.id.navigation_explore -> {
                 tvTitle.text = "Explore Events"
@@ -88,21 +97,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Optional: If you still want to fetch user info for profile picture
     private fun fetchUserDetails() {
         val userId = auth.currentUser?.uid ?: return
         val userRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
+
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val username = snapshot.child("username").getValue(String::class.java)
                 val email = snapshot.child("email").getValue(String::class.java)
-
-                // Example: set profile picture using a placeholder if you have it
-                // ivProfilePicture.setImageResource(R.drawable.profile_placeholder)
-                // You could also load an image URL with Glide/Picasso
+                // You can use these values to update your UI if needed
             }
 
             override fun onCancelled(error: DatabaseError) {}
         })
+    }
+
+    // Public getter so fragments can access the user email if needed
+    fun getUserEmail(): String? {
+        return userEmail
     }
 }

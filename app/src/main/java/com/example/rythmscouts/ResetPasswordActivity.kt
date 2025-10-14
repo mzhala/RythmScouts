@@ -1,27 +1,31 @@
 package com.example.rythmscouts
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.rythmscouts.databinding.ActivityResetPasswordBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class ResetPasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResetPasswordBinding
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResetPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupTextWatchers()
+        auth = FirebaseAuth.getInstance()
+
+        setupTextWatcher()
         setupClickListeners()
     }
 
-    private fun setupTextWatchers() {
+    private fun setupTextWatcher() {
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -30,9 +34,7 @@ class ResetPasswordActivity : AppCompatActivity() {
             }
         }
 
-        binding.usernameEmailEditText.addTextChangedListener(textWatcher)
-        binding.newPasswordEditText.addTextChangedListener(textWatcher)
-        binding.confirmPasswordEditText.addTextChangedListener(textWatcher)
+        binding.emailEditText.addTextChangedListener(textWatcher)
     }
 
     private fun setupClickListeners() {
@@ -42,51 +44,24 @@ class ResetPasswordActivity : AppCompatActivity() {
             }
         }
 
-        binding.googleSignUpButton.setOnClickListener {
-            performGoogleSignUp()
-        }
-
         binding.signInText.setOnClickListener {
             navigateToSignIn()
         }
     }
 
     private fun clearErrors() {
-        binding.usernameEmailInputLayout.error = null
-        binding.newPasswordInputLayout.error = null
-        binding.confirmPasswordInputLayout.error = null
+        binding.emailInputLayout.error = null
     }
 
     private fun validateForm(): Boolean {
         var isValid = true
+        val email = binding.emailEditText.text.toString().trim()
 
-        // Validate username/email
-        val usernameEmail = binding.usernameEmailEditText.text.toString().trim()
-        if (usernameEmail.isEmpty()) {
-            binding.usernameEmailInputLayout.error = "Username or email is required"
+        if (email.isEmpty()) {
+            binding.emailInputLayout.error = "Email is required"
             isValid = false
-        } else if (usernameEmail.contains("@") && !isValidEmail(usernameEmail)) {
-            binding.usernameEmailInputLayout.error = "Please enter a valid email"
-            isValid = false
-        }
-
-        // Validate new password
-        val newPassword = binding.newPasswordEditText.text.toString()
-        if (newPassword.isEmpty()) {
-            binding.newPasswordInputLayout.error = "New password is required"
-            isValid = false
-        } else if (newPassword.length < 6) {
-            binding.newPasswordInputLayout.error = "Password must be at least 6 characters"
-            isValid = false
-        }
-
-        // Validate confirm password
-        val confirmPassword = binding.confirmPasswordEditText.text.toString()
-        if (confirmPassword.isEmpty()) {
-            binding.confirmPasswordInputLayout.error = "Please confirm your password"
-            isValid = false
-        } else if (newPassword != confirmPassword) {
-            binding.confirmPasswordInputLayout.error = "Passwords do not match"
+        } else if (!isValidEmail(email)) {
+            binding.emailInputLayout.error = "Please enter a valid email"
             isValid = false
         }
 
@@ -99,34 +74,33 @@ class ResetPasswordActivity : AppCompatActivity() {
     }
 
     private fun performPasswordReset() {
-        val usernameEmail = binding.usernameEmailEditText.text.toString().trim()
-        val newPassword = binding.newPasswordEditText.text.toString()
+        val email = binding.emailEditText.text.toString().trim()
 
-        // Show loading state
         binding.resetPasswordButton.isEnabled = false
-        binding.resetPasswordButton.text = "Resetting password..."
+        binding.resetPasswordButton.text = "Sending reset email..."
 
-        // Simulate API call
-        binding.root.postDelayed({
-            // Reset button state
-            binding.resetPasswordButton.isEnabled = true
-            binding.resetPasswordButton.text = "Reset Password"
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                binding.resetPasswordButton.isEnabled = true
+                binding.resetPasswordButton.text = "Reset Password"
 
-            // Show success message
-            Toast.makeText(this, "Password reset successfully! Please sign in with your new password.", Toast.LENGTH_LONG).show()
-
-            // Navigate to Sign In (user must sign in again)
-            navigateToSignIn()
-        }, 2000)
-    }
-
-    private fun performGoogleSignUp() {
-        Toast.makeText(this, "Google Sign Up clicked", Toast.LENGTH_SHORT).show()
+                if (task.isSuccessful) {
+                    Toast.makeText(
+                        this,
+                        "Password reset email sent! Check your inbox.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    navigateToSignIn()
+                } else {
+                    val errorMessage = task.exception?.message ?: "Failed to send reset email"
+                    Toast.makeText(this, "Error: $errorMessage", Toast.LENGTH_LONG).show()
+                }
+            }
     }
 
     private fun navigateToSignIn() {
         val intent = Intent(this, SignInActivity::class.java)
         startActivity(intent)
-        finish() // Close ResetPasswordActivity
+        finish()
     }
 }

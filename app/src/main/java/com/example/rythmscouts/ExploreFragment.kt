@@ -33,10 +33,20 @@ class ExploreFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
 
     private val apiKey = "1A1i0hOsTyaaIstcAYpvNAmKjd84Kq3o"
-    private val cities = listOf("All Cities", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth")
+    private val cities = listOf(
+        "All Cities", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth",
+        "Polokwane", "Mbombela", "Nelspruit", "Bloemfontein", "Kimberley", "East London"
+    )
 
     private val handler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
+    private var userEmail: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Get the user email passed from MainActivity
+        userEmail = arguments?.getString("USER_EMAIL")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,13 +60,17 @@ class ExploreFragment : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = EventAdapter(emptyList(), username = "testing-user")
+
+        // Use safe email or fallback to placeholder if missing
+        val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
+
+        adapter = EventAdapter(emptyList(), username = safeEmail)
         recyclerView.adapter = adapter
 
         setupSpinner()
         setupSearch()
+        fetchEvents("", null)
 
-        fetchEvents("", null) // Initial load with all events
         return view
     }
 
@@ -65,7 +79,6 @@ class ExploreFragment : Fragment() {
             override fun onQueryTextSubmit(query: String?) = true
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Debounce search input
                 searchRunnable?.let { handler.removeCallbacks(it) }
                 searchRunnable = Runnable {
                     val searchQuery = newText ?: ""
@@ -115,8 +128,12 @@ class ExploreFragment : Fragment() {
                         matchesQuery && matchesCity
                     }
 
-                    // Get saved IDs from Firebase
-                    val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child("testing-user")
+                    // Firebase reference based on user email
+                    val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
+                    val dbRef = FirebaseDatabase.getInstance()
+                        .getReference("saved_events")
+                        .child(safeEmail)
+
                     dbRef.get().addOnSuccessListener { snapshot ->
                         val savedEventIds = snapshot.children.mapNotNull { it.key }
                         adapter.savedEventIds = savedEventIds

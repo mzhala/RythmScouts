@@ -53,8 +53,11 @@ class HomeFragment : Fragment() {
         todayLabel = view.findViewById(R.id.todayLabel)
         endingSoonLabel = view.findViewById(R.id.endingSoonLabel)
 
-        todayAdapter = EventAdapter(emptyList(), username = "testing-user")
-        endingSoonAdapter = EventAdapter(emptyList(), username = "testing-user")
+        todayAdapter = EventAdapter(emptyList(), username = "testing-user", isHomePage = true)
+        endingSoonAdapter = EventAdapter(emptyList(), username = "testing-user", isHomePage = true)
+        todayViewPager.adapter = todayAdapter
+        endingSoonViewPager.adapter = endingSoonAdapter
+
 
         todayViewPager.adapter = todayAdapter
         endingSoonViewPager.adapter = endingSoonAdapter
