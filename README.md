@@ -106,3 +106,111 @@ The app is designed with **Material Design 3** for a clean and consistent user e
 1. Clone the repository:  
    ```bash
    git clone https://github.com/your-username/rythmscouts.git
+
+
+## Usage
+Account Creation: Sign up using email/password or Google Sign-In
+
+Event Discovery: Browse events on the Explore screen
+
+Save Events: Tap the save button on events you're interested in
+
+Manage Profile: Update your information in the Settings screen
+
+Track Events: View your saved events in the My Events section
+
+Current Status & Roadmap
+✅ Implemented Features
+User Authentication (Google Sign-In & Email/Password)
+
+User Profile Management
+
+Event Discovery Interface
+
+Event Saving Functionality
+
+Dark Mode Support
+
+Settings & Preferences
+
+Form Validation & Error Handling
+
+🚧 In Progress
+Eventbrite API Integration
+
+Real Event Data Population
+
+Push Notifications
+
+Advanced Search Filters
+
+📅 Planned Features
+Social Features (Event Sharing)
+
+Ticket Purchase Integration
+
+Artist Following
+
+Multi-language Support
+
+GitHub Actions CI/CD
+Automated Workflows
+ci.yml - Continuous Integration on every push
+
+build.yml - APK building and linting
+
+security.yml - Weekly security scans
+
+Quality Gates
+✅ Unit Test Execution
+
+✅ Code Linting & Analysis
+
+✅ Security Vulnerability Scanning
+
+✅ Build Success Verification
+
+## Contributing
+We welcome contributions from the community! Please see our Contributing Guidelines for details.
+
+🐛 Reporting Issues
+Use the GitHub Issues tab
+
+Include Android version and device information
+
+Provide detailed steps to reproduce
+
+Attach relevant screenshots or logs
+
+💡 Feature Requests
+Open an issue with the "enhancement" label
+
+Describe the use case and expected behavior
+
+Consider implementation complexity
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+Support & Contact
+Developers:
+
+Halalisile Mzobe
+
+Mmangaliso Malunga
+
+Mvelo Mkhize
+
+Repository: https://github.com/mzhala/RythmScouts
+
+Issues: GitHub Issues
+
+<div align="center">
+🎵 Built for music lovers, by music lovers 🎵
+Never miss another beat with RythmScouts
+
+<img width="100" height="100" alt="ic_logo" src="https://github.com/user-attachments/assets/97cbdd4a-dd18-4c9c-b32e-4eb949c268fb" />
+
+
+</div>
+Project started: October 2025 | Last updated: October 2025
