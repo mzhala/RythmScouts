@@ -10,11 +10,30 @@
 
         <item name="colorOnBackground">@color/colorOnBackground</item>
 
-        <item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView</item>
+        <!--<item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView</item> -->
+
+        <!-- Primary brand color. -->
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+
+        <!-- Tertiary brand color. -->
+        <item name="colorTertiary">@color/colorTertiary</item>
+        <item name="colorOnTertiary">@color/colorOnTertiary</item>
+
+        <!-- Surface colors -->
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+
+        <!-- Bottom Navigation -->
+        <item name="bottomNavigationStyle">@style/Widget.Material3.BottomNavigationView</item>
 
 
         <!-- Status bar color. -->
 
         <!-- Customize your theme here. -->
+    </style>
+    <!-- Add this style for rounded text fields -->
+    <style name="RoundedTextField" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
     </style>
 </resources>
