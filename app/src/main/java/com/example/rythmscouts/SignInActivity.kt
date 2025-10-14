@@ -97,11 +97,10 @@ class SignInActivity : AppCompatActivity() {
             binding.signInButton.isEnabled = true
             binding.signInButton.text = "Sign In"
 
-            // Show success message
             Toast.makeText(this, "Signed in successfully!", Toast.LENGTH_LONG).show()
 
-            // Navigate to Main Activity
-            navigateToMainActivity()
+            // Pass email to MainActivity
+            navigateToMainActivity(email)
         }, 2000)
     }
 
@@ -112,7 +111,6 @@ class SignInActivity : AppCompatActivity() {
     private fun navigateToResetPassword() {
         val intent = Intent(this, ResetPasswordActivity::class.java)
         startActivity(intent)
-        // Don't finish() here so user can come back to sign in
     }
 
     private fun navigateToSignUp() {
@@ -121,9 +119,11 @@ class SignInActivity : AppCompatActivity() {
         finish()
     }
 
-    // NEW: Navigate to Main Activity after successful sign in
-    private fun navigateToMainActivity() {
+    // Updated: Accept email as parameter
+    private fun navigateToMainActivity(email: String) {
         val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("USER_EMAIL", email)
         startActivity(intent)
+        finish() // Close SignInActivity so user cannot go back
     }
 }
