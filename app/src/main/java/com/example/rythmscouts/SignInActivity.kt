@@ -5,14 +5,45 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.rythmscouts.databinding.ActivitySignInBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class SignInActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignInBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    // Google Sign-In result launcher
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                account?.idToken?.let { idToken ->
+                    handleGoogleSignIn(idToken)
+                }
+            } catch (e: ApiException) {
+                Toast.makeText(this, "Google Sign-In failed: ${e.statusCode}", Toast.LENGTH_LONG).show()
+                binding.googleSignInButton.isEnabled = true
+            }
+        } else {
+            // User canceled the Google Sign-In
+            binding.googleSignInButton.isEnabled = true
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,9 +51,22 @@ class SignInActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().getReference("users")
+
+        // Configure Google Sign In
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getWebClientId())
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         setupTextWatchers()
         setupClickListeners()
+    }
+
+    private fun getWebClientId(): String {
+        // Fixed: Removed the newline character
+        return "132190124105-4vb44hee2egk8lqb256j0jm2lsisnuis.apps.googleusercontent.com"
     }
 
     private fun setupTextWatchers() {
@@ -112,7 +156,62 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun performGoogleSignIn() {
-        Toast.makeText(this, "Google Sign In clicked", Toast.LENGTH_SHORT).show()
+        binding.googleSignInButton.isEnabled = false
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
+
+    private fun handleGoogleSignIn(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    if (user != null) {
+                        // Check if user exists in database
+                        database.child(user.uid).get().addOnCompleteListener { dbTask ->
+                            if (dbTask.isSuccessful) {
+                                val userData = dbTask.result?.getValue(User::class.java)
+                                if (userData == null) {
+                                    // User doesn't exist in database, create new user
+                                    createGoogleUserInDatabase(user)
+                                } else {
+                                    // User exists, proceed to main activity
+                                    Toast.makeText(this, "Google Sign-In successful!", Toast.LENGTH_LONG).show()
+                                    navigateToMainActivity(user.email ?: "")
+                                }
+                            } else {
+                                // Database error, still create user
+                                createGoogleUserInDatabase(user)
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "Google Sign-In failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                    binding.googleSignInButton.isEnabled = true
+                }
+            }
+    }
+
+    private fun createGoogleUserInDatabase(user: com.google.firebase.auth.FirebaseUser) {
+        val googleUser = User(
+            username = user.displayName ?: "Google User",
+            email = user.email ?: "",
+            firstName = null,
+            lastName = null,
+            profilePictureUrl = user.photoUrl?.toString()
+        )
+
+        database.child(user.uid).setValue(googleUser)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Google Sign-In successful!", Toast.LENGTH_LONG).show()
+                navigateToMainActivity(user.email ?: "")
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Google Sign-In successful! (Database save failed: ${e.message})", Toast.LENGTH_LONG).show()
+                navigateToMainActivity(user.email ?: "")
+            }
     }
 
     private fun navigateToResetPassword() {
