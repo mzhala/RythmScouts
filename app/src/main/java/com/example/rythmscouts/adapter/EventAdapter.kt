@@ -11,18 +11,18 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rythmscouts.R
 import com.example.rythmscouts.network.Event
-import com.google.firebase.database.FirebaseDatabase
-import androidx.appcompat.app.AlertDialog
 import com.example.rythmscouts.network.EventVenueEmbedded
+import com.google.firebase.database.FirebaseDatabase
 
 class EventAdapter(
     private var events: List<Event>,
     private val username: String = "testing-user",
-    private val isHomePage: Boolean = false, // new flag
+    private val isHomePage: Boolean = false,
     var savedEventIds: List<String> = emptyList()
 ) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
@@ -32,6 +32,7 @@ class EventAdapter(
         val venue: TextView = view.findViewById(R.id.eventVenue)
         val image: ImageView = view.findViewById(R.id.eventImage)
         val saveButton: Button = view.findViewById(R.id.saveButton)
+        val buyButton: ImageButton = view.findViewById(R.id.buyTicketsButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
@@ -77,59 +78,56 @@ class EventAdapter(
                 .into(holder.image)
         }
 
-        val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(username)
-
-        // Set button text based on savedEventIds
-        holder.saveButton.text = if (savedEventIds.contains(eventId)) "Unsave" else "Save"
-
-        val buyButton: ImageButton = holder.itemView.findViewById(R.id.buyTicketsButton)
+        // Set buy button
         if (!event.url.isNullOrEmpty()) {
-            buyButton.visibility = View.VISIBLE
-            buyButton.setOnClickListener {
+            holder.buyButton.visibility = View.VISIBLE
+            holder.buyButton.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(event.url))
                 holder.itemView.context.startActivity(intent)
             }
         } else {
-            buyButton.visibility = View.GONE
+            holder.buyButton.visibility = View.GONE
         }
 
-        // Save/Unsave button
+        val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(username)
+
+        // Update button text based on savedEventIds
+        holder.saveButton.text = if (savedEventIds.contains(eventId)) "Unsave" else "Save"
+
         holder.saveButton.setOnClickListener {
-            dbRef.child(eventId).get().addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
-                    dbRef.child(eventId).removeValue()
+            if (savedEventIds.contains(eventId)) {
+                // Remove event
+                dbRef.child(eventId).removeValue().addOnSuccessListener {
+                    savedEventIds = savedEventIds - eventId
                     holder.saveButton.text = "Save"
                     showEventStatusDialog(holder.itemView.context, false)
-                    savedEventIds = savedEventIds - eventId
-                } else {
-                    val salesStart = event.sales?.public?.startDateTime ?: ""
-                    val salesEnd = event.sales?.public?.endDateTime ?: ""
+                }.addOnFailureListener { it.printStackTrace() }
+            } else {
+                // Add event
+                val salesStart = event.sales?.public?.startDateTime ?: ""
+                val salesEnd = event.sales?.public?.endDateTime ?: ""
 
-                    val eventData = mapOf(
-                        "id" to event.id,
-                        "name" to (event.name ?: "Unknown Event"),
-                        "date_raw" to dateStr,
-                        "time_raw" to timeStr,
-                        "date" to formattedDate,
-                        "venue" to (venue?.name ?: "Unknown Venue"),
-                        "city" to (venue?.city?.name ?: "Unknown City"),
-                        "imageUrl" to (event.images.firstOrNull()?.url ?: ""),
-                        "buyUrl" to (event.url ?: ""),
-                        "latitude" to (venue?.location?.latitude ?: ""),
-                        "longitude" to (venue?.location?.longitude ?: ""),
-                        "salesStart" to salesStart,
-                        "salesEnd" to salesEnd
-                    )
+                val eventData = mapOf(
+                    "id" to event.id,
+                    "name" to (event.name ?: "Unknown Event"),
+                    "date_raw" to dateStr,
+                    "time_raw" to timeStr,
+                    "date" to formattedDate,
+                    "venue" to (venue?.name ?: "Unknown Venue"),
+                    "city" to (venue?.city?.name ?: "Unknown City"),
+                    "imageUrl" to (event.images.firstOrNull()?.url ?: ""),
+                    "buyUrl" to (event.url ?: ""),
+                    "latitude" to (venue?.location?.latitude ?: ""),
+                    "longitude" to (venue?.location?.longitude ?: ""),
+                    "salesStart" to salesStart,
+                    "salesEnd" to salesEnd
+                )
 
-
-                    dbRef.child(eventId).setValue(eventData)
-                        .addOnSuccessListener {
-                            holder.saveButton.text = "Unsave"
-                            savedEventIds = savedEventIds + eventId
-                            showEventStatusDialog(holder.itemView.context, true)
-                        }
-                        .addOnFailureListener { e -> e.printStackTrace() }
-                }
+                dbRef.child(eventId).setValue(eventData).addOnSuccessListener {
+                    savedEventIds = savedEventIds + eventId
+                    holder.saveButton.text = "Unsave"
+                    showEventStatusDialog(holder.itemView.context, true)
+                }.addOnFailureListener { it.printStackTrace() }
             }
         }
     }
@@ -139,7 +137,6 @@ class EventAdapter(
         notifyDataSetChanged()
     }
 
-    // Popup for saved/unsaved events with Close button
     private fun showEventStatusDialog(context: android.content.Context, saved: Boolean) {
         val dialogView = LayoutInflater.from(context)
             .inflate(R.layout.dialog_event_status, null)
@@ -147,7 +144,7 @@ class EventAdapter(
         val imageView: ImageView = dialogView.findViewById(R.id.statusImage)
         val title: TextView = dialogView.findViewById(R.id.statusTitle)
         val message: TextView = dialogView.findViewById(R.id.statusMessage)
-        val closeButton: Button = dialogView.findViewById(R.id.closeButton) // make sure your XML has this button
+        val closeButton: Button = dialogView.findViewById(R.id.closeButton)
 
         if (saved) {
             imageView.setImageResource(R.drawable.ic_saved)
@@ -159,12 +156,8 @@ class EventAdapter(
             message.text = "This event will be removed from your saved events."
         }
 
-        val dialog = AlertDialog.Builder(context)
-            .setView(dialogView)
-            .create()
-
+        val dialog = AlertDialog.Builder(context).setView(dialogView).create()
         closeButton.setOnClickListener { dialog.dismiss() }
-
         dialog.show()
     }
 }
