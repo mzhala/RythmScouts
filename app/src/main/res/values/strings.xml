@@ -35,4 +35,12 @@
     <string name="password_changed">Password changed successfully</string>
     <string name="signed_out">Signed out successfully</string>
     <string name="have_an_account_sign_in">Have an account? SIGN IN</string>
+    <!-- Splash and Onboarding -->
+    <string name="welcome_to_rythmscouts">Welcome to RythmScouts</string>
+    <string name="onboarding_description">Discover and save your favorite music events. Never miss a concert again!</string>
+    <string name="feature_find_events">• Find local music events</string>
+    <string name="feature_save_events">• Save your favorite events</string>
+    <string name="feature_recommendations">• Get personalized recommendations</string>
+    <string name="create_account">Create Account</string>
+    <string name="sign_in">Sign In</string>
 </resources>

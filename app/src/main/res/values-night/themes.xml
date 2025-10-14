@@ -36,4 +36,10 @@
     <item name="cornerFamily">rounded</item>
     <item name="cornerSize">8dp</item>
 </style>
+
+    <style name="Theme.RythmScouts.Splash" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+    </style>
 </resources>
