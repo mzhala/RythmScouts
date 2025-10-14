@@ -7,16 +7,26 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
 import com.example.rythmscouts.databinding.ActivitySignUpBinding
+import com.example.rythmscouts.models.User
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class SignUpActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpBinding
+    private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Initialize Firebase Auth and Database
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().getReference("users")
 
         setupTextWatchers()
         setupClickListeners()
@@ -63,14 +73,16 @@ class SignUpActivity : AppCompatActivity() {
     private fun validateForm(): Boolean {
         var isValid = true
 
-        // Validate username
-        if (binding.usernameEditText.text.toString().trim().isEmpty()) {
+        val username = binding.usernameEditText.text.toString().trim()
+        val email = binding.emailEditText.text.toString().trim()
+        val password = binding.passwordEditText.text.toString()
+        val confirmPassword = binding.confirmPasswordEditText.text.toString()
+
+        if (username.isEmpty()) {
             binding.usernameInputLayout.error = "Username is required"
             isValid = false
         }
 
-        // Validate email
-        val email = binding.emailEditText.text.toString().trim()
         if (email.isEmpty()) {
             binding.emailInputLayout.error = "Email is required"
             isValid = false
@@ -79,8 +91,6 @@ class SignUpActivity : AppCompatActivity() {
             isValid = false
         }
 
-        // Validate password
-        val password = binding.passwordEditText.text.toString()
         if (password.isEmpty()) {
             binding.passwordInputLayout.error = "Password is required"
             isValid = false
@@ -89,8 +99,6 @@ class SignUpActivity : AppCompatActivity() {
             isValid = false
         }
 
-        // Validate confirm password
-        val confirmPassword = binding.confirmPasswordEditText.text.toString()
         if (confirmPassword.isEmpty()) {
             binding.confirmPasswordInputLayout.error = "Please confirm your password"
             isValid = false
@@ -99,7 +107,6 @@ class SignUpActivity : AppCompatActivity() {
             isValid = false
         }
 
-        // Validate terms
         if (!binding.termsCheckBox.isChecked) {
             Snackbar.make(binding.root, "Please accept the terms and policy", Snackbar.LENGTH_SHORT).show()
             isValid = false
@@ -118,31 +125,47 @@ class SignUpActivity : AppCompatActivity() {
         val email = binding.emailEditText.text.toString().trim()
         val password = binding.passwordEditText.text.toString()
 
-        // Show loading state
         binding.signUpButton.isEnabled = false
         binding.signUpButton.text = "Creating account..."
 
-        // Simulate API call
-        simulateSignUpApiCall(username, email, password)
-    }
+        // Use Firebase Authentication
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val firebaseUser = auth.currentUser
+                    val userId = firebaseUser?.uid ?: return@addOnCompleteListener
 
-    private fun simulateSignUpApiCall(username: String, email: String, password: String) {
-        // Simulate network delay
-        binding.root.postDelayed({
-            // Reset button state
-            binding.signUpButton.isEnabled = true
-            binding.signUpButton.text = "Sign Up"
+                    // Create user object (without password)
+                    val user = User(
+                        username = username,
+                        email = email,
+                        firstName = null,
+                        lastName = null,
+                        profilePictureUrl = null
+                    )
 
-            // Show success message
-            Toast.makeText(this, "Account created successfully!", Toast.LENGTH_LONG).show()
-
-            // Navigate to Main Activity
-            navigateToMainActivity()
-        }, 2000)
+                    // Save user data to Realtime Database
+                    database.child(userId).setValue(user)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Account created successfully!", Toast.LENGTH_LONG).show()
+                            navigateToMainActivity(email)
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Failed to save user: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                } else {
+                    Toast.makeText(this, "Sign Up failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+            .addOnCompleteListener {
+                binding.signUpButton.isEnabled = true
+                binding.signUpButton.text = "Sign Up"
+            }
     }
 
     private fun performGoogleSignUp() {
         Toast.makeText(this, "Google Sign Up clicked", Toast.LENGTH_SHORT).show()
+        // Add Google Sign-In logic here later
     }
 
     private fun navigateToSignIn() {
@@ -151,9 +174,10 @@ class SignUpActivity : AppCompatActivity() {
         finish()
     }
 
-    // NEW: Navigate to Main Activity after successful sign up
-    private fun navigateToMainActivity() {
+    private fun navigateToMainActivity(email: String) {
         val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("USER_EMAIL", email)
         startActivity(intent)
+        finish()
     }
 }

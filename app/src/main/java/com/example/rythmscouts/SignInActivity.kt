@@ -1,21 +1,25 @@
 package com.example.rythmscouts
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.rythmscouts.databinding.ActivitySignInBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class SignInActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignInBinding
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        auth = FirebaseAuth.getInstance()
 
         setupTextWatchers()
         setupClickListeners()
@@ -92,16 +96,19 @@ class SignInActivity : AppCompatActivity() {
         binding.signInButton.isEnabled = false
         binding.signInButton.text = "Signing in..."
 
-        // Simulate API call
-        binding.root.postDelayed({
-            binding.signInButton.isEnabled = true
-            binding.signInButton.text = "Sign In"
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                binding.signInButton.isEnabled = true
+                binding.signInButton.text = "Sign In"
 
-            Toast.makeText(this, "Signed in successfully!", Toast.LENGTH_LONG).show()
-
-            // Pass email to MainActivity
-            navigateToMainActivity(email)
-        }, 2000)
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Signed in successfully!", Toast.LENGTH_LONG).show()
+                    navigateToMainActivity(email)
+                } else {
+                    val errorMessage = task.exception?.message ?: "Sign in failed"
+                    Toast.makeText(this, "Sign in failed: $errorMessage", Toast.LENGTH_LONG).show()
+                }
+            }
     }
 
     private fun performGoogleSignIn() {
@@ -119,11 +126,10 @@ class SignInActivity : AppCompatActivity() {
         finish()
     }
 
-    // Updated: Accept email as parameter
     private fun navigateToMainActivity(email: String) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("USER_EMAIL", email)
         startActivity(intent)
-        finish() // Close SignInActivity so user cannot go back
+        finish()
     }
 }
