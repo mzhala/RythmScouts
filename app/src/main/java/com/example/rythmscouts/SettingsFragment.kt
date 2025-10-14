@@ -16,11 +16,20 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 
 class SettingsFragment : Fragment() {
 
     private var rootView: View? = null
     private lateinit var sharedPreferences: android.content.SharedPreferences
+
+    private lateinit var firstNameEditText: TextInputEditText
+    private lateinit var lastNameEditText: TextInputEditText
+    private lateinit var usernameEditText: TextInputEditText
+    private lateinit var currentPasswordEditText: TextInputEditText
+    private lateinit var newPasswordEditText: TextInputEditText
+    private lateinit var confirmPasswordEditText: TextInputEditText
+
     private var isDarkModeEnabled = false
     private var areNotificationsEnabled = true
 
@@ -41,14 +50,31 @@ class SettingsFragment : Fragment() {
         sharedPreferences =
             requireContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
 
+        // Initialize UI elements
+        firstNameEditText = view.findViewById(R.id.firstNameEditText)
+        lastNameEditText = view.findViewById(R.id.lastNameEditText)
+        usernameEditText = view.findViewById(R.id.usernameEditText)
+        currentPasswordEditText = view.findViewById(R.id.currentPasswordEditText)
+        newPasswordEditText = view.findViewById(R.id.newPasswordEditText)
+        confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
+
         setupSwitchListeners()
         setupClickListeners()
         loadCurrentSettings()
+        loadUserInfo()
     }
 
     private fun setupClickListeners() {
         rootView?.findViewById<View>(R.id.signOutButton)?.setOnClickListener {
             showSignOutConfirmation()
+        }
+
+        rootView?.findViewById<View>(R.id.updateProfileButton)?.setOnClickListener {
+            updateProfile()
+        }
+
+        rootView?.findViewById<View>(R.id.changePasswordButton)?.setOnClickListener {
+            changePassword()
         }
     }
 
@@ -79,6 +105,64 @@ class SettingsFragment : Fragment() {
 
         rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.isChecked = isDarkModeEnabled
         rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = areNotificationsEnabled
+    }
+
+    private fun loadUserInfo() {
+        firstNameEditText.setText(sharedPreferences.getString("firstName", ""))
+        lastNameEditText.setText(sharedPreferences.getString("lastName", ""))
+        usernameEditText.setText(sharedPreferences.getString("username", ""))
+    }
+
+    private fun updateProfile() {
+        val firstName = firstNameEditText.text.toString().trim()
+        val lastName = lastNameEditText.text.toString().trim()
+        val username = usernameEditText.text.toString().trim()
+
+        if (firstName.isEmpty() || lastName.isEmpty() || username.isEmpty()) {
+            showSnackbar("All fields are required.")
+            return
+        }
+
+        sharedPreferences.edit {
+            putString("firstName", firstName)
+            putString("lastName", lastName)
+            putString("username", username)
+        }
+
+        showSnackbar("Profile updated successfully!")
+    }
+
+    private fun changePassword() {
+        val currentPassword = currentPasswordEditText.text.toString()
+        val newPassword = newPasswordEditText.text.toString()
+        val confirmPassword = confirmPasswordEditText.text.toString()
+
+        val savedPassword = sharedPreferences.getString("password", "")
+
+        if (currentPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+            showSnackbar("All fields are required.")
+            return
+        }
+
+        if (currentPassword != savedPassword) {
+            showSnackbar("Current password is incorrect.")
+            return
+        }
+
+        if (newPassword != confirmPassword) {
+            showSnackbar("New passwords do not match.")
+            return
+        }
+
+        sharedPreferences.edit { putString("password", newPassword) }
+        showSnackbar("Password changed successfully!")
+        clearPasswordFields()
+    }
+
+    private fun clearPasswordFields() {
+        currentPasswordEditText.text?.clear()
+        newPasswordEditText.text?.clear()
+        confirmPasswordEditText.text?.clear()
     }
 
     private fun enableNotifications() {
@@ -124,6 +208,7 @@ class SettingsFragment : Fragment() {
 
     private fun performSignOut() {
         showSnackbar("Signed out successfully")
+        // Add sign-out logic here (e.g., clear tokens or navigate to login)
     }
 
     private fun showSnackbar(message: String) {
