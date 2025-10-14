@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:layout_marginBottom="2dp"
     android:background="@color/white"
     tools:context=".HomeFragment">
 
@@ -14,33 +13,75 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/homeTitle"
+        <!-- App Landing Title / Tagline -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Discover Events"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"
-            android:textColor="@color/black" />
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/homeTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Discover Events"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/homeTagline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Never miss the events you love!"
+                android:textSize="14sp"
+                android:textColor="?attr/colorSecondary"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
 
         <!-- Section 1: Happening Today / Soon -->
-        <TextView
-            android:id="@+id/todayLabel"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Happening Today"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:textColor="@color/black" />
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp">
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/todayViewPager"
+            <TextView
+                android:id="@+id/todayLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Happening Today"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/todaySeeAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="See All"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:layout_marginBottom="8dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="8dp">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/todayViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        </androidx.cardview.widget.CardView>
 
         <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
             android:id="@+id/todayDots"
@@ -50,21 +91,47 @@
             android:layout_marginBottom="24dp" />
 
         <!-- Section 2: Tickets Ending Soon -->
-        <TextView
-            android:id="@+id/endingSoonLabel"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tickets Ending Soon"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"
-            android:textColor="@color/black" />
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp">
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/endingSoonViewPager"
+            <TextView
+                android:id="@+id/endingSoonLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tickets Ending Soon"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/endingSoonSeeAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="See All"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="8dp">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/endingSoonViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"/>
+        </androidx.cardview.widget.CardView>
 
         <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
             android:id="@+id/endingSoonDots"

@@ -33,7 +33,10 @@ class ExploreFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
 
     private val apiKey = "1A1i0hOsTyaaIstcAYpvNAmKjd84Kq3o"
-    private val cities = listOf("All Cities", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth")
+    private val cities = listOf(
+        "All Cities", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth",
+        "Polokwane", "Mbombela", "Nelspruit", "Bloemfontein", "Kimberley", "East London"
+    )
 
     private val handler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
