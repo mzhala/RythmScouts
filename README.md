@@ -9,6 +9,7 @@ RythmScouts is an Android mobile application for discovering, browsing, and savi
 
 [Demo Video]
 ---
+https://youtu.be/5GU_4Ycl4D8
 
 ## Table of Contents
 
