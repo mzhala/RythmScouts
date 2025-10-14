@@ -24,7 +24,6 @@ https://youtu.be/5GU_4Ycl4D8
 - [License](#license)
 - [Screenshots](#screenshots)
 - [Technical Stack](#technical-stack)
-- [Current Status & Roadmap](#current-status--roadmap)
 - [GitHub Actions CI/CD](#github-actions-cicd)
 - [Support & Contact](#support--contact)
 
@@ -268,6 +267,8 @@ Quality Gates
 ✅ Security Vulnerability Scanning
 
 ✅ Build Success Verification
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Contributing
 We welcome contributions from the community! Please see our Contributing Guidelines for details.
@@ -288,10 +289,93 @@ Describe the use case and expected behavior
 
 Consider implementation complexity
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+## **GitHub Actions CI/CD**
 
-Support & Contact
+RythmScouts uses GitHub Actions to automate the build and artifact generation process. The workflow triggers on **pushes to `release/**` branches** and can also be run manually via the Actions tab.
+
+### **Workflow Features**
+
+* **Run Unit Tests** – Ensures that the project compiles and tests pass
+* **Build APKs and AAB** – Generates both debug and release APKs as well as a release App Bundle (AAB)
+* **Upload Artifacts** – Automatically uploads generated APKs and AABs to GitHub for download
+
+### **Workflow Highlights**
+
+* Uses **Ubuntu-latest** runner
+* Sets up **JDK 17** with Gradle caching for faster builds
+* Dynamically sets environment variables such as current date and repository name
+* Builds:
+
+  * Debug APK (`assembleDebug`)
+  * Release APK (`assembleRelease`)
+  * Release App Bundle (`bundleRelease`)
+* Uploads artifacts to GitHub Actions for easy access
+
+### **Example Workflow Snippet**
+
+```yaml
+name: Generated APK AAB (Upload - Create Artifact To Github Action)
+
+on:
+  push:
+    branches:
+      - 'release/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set current date
+        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+      - name: Set repository name
+        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Run tests
+        run: ./gradlew test
+      - name: Build project
+        run: ./gradlew build
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+      - name: Build release APK
+        run: ./gradlew assemble
+      - name: Build release AAB
+        run: ./gradlew app:bundleRelease
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.date_today }} - Debug APK
+          path: app/build/outputs/apk/debug/
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.date_today }} - Release APK
+          path: app/build/outputs/apk/release/
+      - name: Upload release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.date_today }} - Release AAB
+          path: app/build/outputs/bundle/release/
+```
+
+### **Benefits**
+
+* Ensures that your app builds correctly for every release branch
+* Provides downloadable APKs/AABs directly from GitHub Actions
+* Automates testing to catch issues before deployment
+
+---
+
+## Support & Contact
 Developers:
 
 Halalisile Mzobe
