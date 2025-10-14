@@ -7,9 +7,15 @@
     <SearchView
         android:id="@+id/searchView"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/searchview_border"
-        android:queryHint="Search for music events..." />
+        android:queryHint="Search for music events..."
+        android:iconifiedByDefault="false"
+        android:focusable="true"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:layout_margin="8dp" />
+
 
     <Spinner
         android:id="@+id/citySpinner"
