@@ -14,7 +14,8 @@ data class Event(
     val images: List<Image>,
     val dates: Dates,
     val _embedded: EventVenueEmbedded?,
-    val id: String
+    val id: String,
+    val sales: Sales? // <-- Added this field
 )
 
 data class Image(
@@ -28,6 +29,15 @@ data class Dates(
 data class Start(
     val localDate: String,
     val localTime: String?
+)
+
+data class Sales(
+    val public: PublicSales?
+)
+
+data class PublicSales(
+    val startDateTime: String?,
+    val endDateTime: String?
 )
 
 data class EventVenueEmbedded(
@@ -45,5 +55,6 @@ data class Location(
     val longitude: String?,
     val latitude: String?
 )
+
 data class City(val name: String)
 data class Country(val name: String)

@@ -101,6 +101,9 @@ class EventAdapter(
                     showEventStatusDialog(holder.itemView.context, false)
                     savedEventIds = savedEventIds - eventId
                 } else {
+                    val salesStart = event.sales?.public?.startDateTime ?: ""
+                    val salesEnd = event.sales?.public?.endDateTime ?: ""
+
                     val eventData = mapOf(
                         "id" to event.id,
                         "name" to (event.name ?: "Unknown Event"),
@@ -112,8 +115,11 @@ class EventAdapter(
                         "imageUrl" to (event.images.firstOrNull()?.url ?: ""),
                         "buyUrl" to (event.url ?: ""),
                         "latitude" to (venue?.location?.latitude ?: ""),
-                        "longitude" to (venue?.location?.longitude ?: "")
+                        "longitude" to (venue?.location?.longitude ?: ""),
+                        "salesStart" to salesStart,
+                        "salesEnd" to salesEnd
                     )
+
 
                     dbRef.child(eventId).setValue(eventData)
                         .addOnSuccessListener {

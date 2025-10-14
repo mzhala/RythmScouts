@@ -68,6 +68,8 @@ class MyEventsFragment : Fragment() {
 
     private fun fetchSavedEvents(showPast: Boolean) {
         dbRef.get().addOnSuccessListener { snapshot ->
+            if (!isAdded || _binding == null) return@addOnSuccessListener
+
             val events = mutableListOf<FirebaseEvent>()
             val now = LocalDate.now()
 
@@ -104,10 +106,14 @@ class MyEventsFragment : Fragment() {
                 }
             }
 
-            eventAdapter.updateData(events)
-            binding.eventsCountTextView.text = "${events.size} events"
+            if (isAdded && _binding != null) {
+                eventAdapter.updateData(events)
+                binding.eventsCountTextView.text = "${events.size} events"
+            }
+
         }.addOnFailureListener { e -> e.printStackTrace() }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

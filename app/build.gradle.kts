@@ -74,4 +74,7 @@ dependencies {
     implementation("com.jakewharton.threetenabp:threetenabp:1.4.4")
 
     implementation("com.google.android.material:material:1.9.0")
+
+    //home page carousel progress dot indicator
+    implementation("com.tbuonomo:dotsindicator:5.0")
 }
