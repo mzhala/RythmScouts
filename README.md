@@ -89,12 +89,28 @@ The app is designed with **Material Design 3** for a clean and consistent user e
 - **Firebase Analytics**: Usage tracking and insights
 - **Google Sign-In API**: OAuth integration for easy authentication
 
+Got it! Here’s your **API Integration** section rewritten to perfectly match your `TicketmasterResponse` model and setup, formatted for GitHub README:
+
+---
+
 ### 🌐 **API Integration**
-- **REST API Integration**: Fetches event details (name, date, location, image)  
-  - GET `/events` – fetch all events  
-  - GET `/events/{id}` – fetch event details  
-  - POST `/users/{id}/savedEvents` – save an event to a user's account  
-- **Retrofit / OkHttp** – REST API calls
+
+* **Ticketmaster Discovery API**: Provides real-time event data including name, date, venue, city, and images.
+
+  * `GET /discovery/v2/events` – Fetch a list of events based on filters such as keyword, city, or date range.
+  * `GET /discovery/v2/events/{id}` – Retrieve detailed information for a specific event including venue, country, and location data.
+  * `POST /users/{id}/savedEvents` – Save selected events to the user’s Firebase account for tracking in the “My Events” section.
+
+* **Retrofit / OkHttp**: Used for all network requests to the Ticketmaster API, providing asynchronous handling and efficient response parsing.
+
+* **API Response Model**: Maps to the Ticketmaster data structure using Kotlin data classes such as:
+
+  * `TicketmasterResponse`, `Event`, `Image`, `Event Dates`, `Ticket startDateTime`, `Ticket endDateTime`, `Venue`, `Latitude`, `Longitude`, `City` and `Country`.
+
+* **API Authentication**: Access is secured using a private Ticketmaster API key stored in the project configuration file.
+
+---
+
 
 ---
 
