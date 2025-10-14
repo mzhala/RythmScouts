@@ -119,8 +119,19 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performSignOut() {
+        // Sign out from Firebase
+        com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+
+        // Show a confirmation
         showSnackbar("Signed out successfully")
+
+        // Navigate to SignInActivity
+        val intent = android.content.Intent(requireContext(), SignInActivity::class.java)
+        // Clear the back stack so the user can't navigate back
+        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
+
 
     private fun showSnackbar(message: String) {
         view?.let { Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show() }
