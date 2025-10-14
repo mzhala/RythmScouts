@@ -12,7 +12,6 @@ import com.example.rythmscouts.adapter.FirebaseEventAdapter
 import com.example.rythmscouts.databinding.FragmentMyEventsBinding
 import com.google.firebase.database.FirebaseDatabase
 import org.threeten.bp.LocalDate
-import org.threeten.bp.LocalTime
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -23,15 +22,14 @@ class MyEventsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var eventAdapter: FirebaseEventAdapter
-    private val dbRef by lazy {
-        FirebaseDatabase.getInstance()
-            .getReference("saved_events")
-            .child("testing-user") // replace with real user ID
-    }
+    private var userEmail: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(requireContext())
+
+        // Get the user email from arguments (sent by MainActivity)
+        userEmail = arguments?.getString("USER_EMAIL")
     }
 
     override fun onCreateView(
@@ -43,7 +41,7 @@ class MyEventsFragment : Fragment() {
 
         setupRecyclerView()
         setupToggleButtons()
-        fetchSavedEvents(showPast = false) // default upcoming
+        fetchSavedEvents(showPast = false)
     }
 
     private fun setupRecyclerView() {
@@ -67,6 +65,19 @@ class MyEventsFragment : Fragment() {
     }
 
     private fun fetchSavedEvents(showPast: Boolean) {
+        if (userEmail == null) {
+            Log.e("MyEventsFragment", "No user email received")
+            return
+        }
+
+        // Firebase keys can't contain '.', '#', '$', '[', or ']'
+        // Replace '.' with ',' to make the email safe for Firebase paths
+        val safeEmail = userEmail!!.replace(".", ",")
+
+        val dbRef = FirebaseDatabase.getInstance()
+            .getReference("saved_events")
+            .child(safeEmail)
+
         dbRef.get().addOnSuccessListener { snapshot ->
             if (!isAdded || _binding == null) return@addOnSuccessListener
 
@@ -111,9 +122,10 @@ class MyEventsFragment : Fragment() {
                 binding.eventsCountTextView.text = "${events.size} events"
             }
 
-        }.addOnFailureListener { e -> e.printStackTrace() }
+        }.addOnFailureListener { e ->
+            e.printStackTrace()
+        }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
