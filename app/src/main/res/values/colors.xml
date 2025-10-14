@@ -34,4 +34,9 @@
     <color name="gray_300">#FFE0E0E0</color>
     <color name="gray_500">#FF9E9E9E</color>
     <color name="gray_700">#FF616161</color>
+    <color name="colorTertiary">#7D5260</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
+    <color name="colorSurface">#FFFBFE</color>
+    <color name="colorOnSurface">#1C1B1F</color>
+
 </resources>

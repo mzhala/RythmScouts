@@ -6,9 +6,7 @@
     <string name="title_settings">Settings</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <string name="buy_tickets">buy_tickets</string>
-
     <string name="settings_title">Settings</string>
     <string name="settings_subtitle">Manage your account and preferences</string>
     <string name="change_photo">Change Photo</string>
@@ -36,4 +34,5 @@
     <string name="profile_updated">Profile updated successfully</string>
     <string name="password_changed">Password changed successfully</string>
     <string name="signed_out">Signed out successfully</string>
+    <string name="have_an_account_sign_in">Have an account? SIGN IN</string>
 </resources>
