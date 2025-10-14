@@ -92,15 +92,16 @@ class SignInActivity : AppCompatActivity() {
         binding.signInButton.isEnabled = false
         binding.signInButton.text = "Signing in..."
 
-        // Simulate API call or authentication
+        // Simulate API call
         binding.root.postDelayed({
             binding.signInButton.isEnabled = true
             binding.signInButton.text = "Sign In"
 
+            // Show success message
             Toast.makeText(this, "Signed in successfully!", Toast.LENGTH_LONG).show()
 
-            // Pass email to MainActivity
-            navigateToMainActivity(email)
+            // Navigate to Main Activity
+            navigateToMainActivity()
         }, 2000)
     }
 
@@ -111,6 +112,7 @@ class SignInActivity : AppCompatActivity() {
     private fun navigateToResetPassword() {
         val intent = Intent(this, ResetPasswordActivity::class.java)
         startActivity(intent)
+        // Don't finish() here so user can come back to sign in
     }
 
     private fun navigateToSignUp() {
@@ -119,11 +121,9 @@ class SignInActivity : AppCompatActivity() {
         finish()
     }
 
-    // Updated: Accept email as parameter
-    private fun navigateToMainActivity(email: String) {
+    // NEW: Navigate to Main Activity after successful sign in
+    private fun navigateToMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("USER_EMAIL", email)
         startActivity(intent)
-        finish()
     }
 }

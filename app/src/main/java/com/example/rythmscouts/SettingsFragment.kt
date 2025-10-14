@@ -13,15 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
-import androidx.core.content.edit
 
 class SettingsFragment : Fragment() {
 
-    private var _binding: View? = null
-    private val binding get() = _binding!!
-
+    private var rootView: View? = null
     private lateinit var sharedPreferences: android.content.SharedPreferences
     private var isDarkModeEnabled = false
     private var areNotificationsEnabled = true
@@ -29,11 +27,12 @@ class SettingsFragment : Fragment() {
     private val CHANNEL_ID = "notifications_channel"
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        _binding = inflater.inflate(getLayoutResource(), container, false)
-        return binding
+        rootView = inflater.inflate(R.layout.fragment_settings, container, false)
+        return rootView!!
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,36 +41,26 @@ class SettingsFragment : Fragment() {
         sharedPreferences =
             requireContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
 
-        initializeViews()
-        setupClickListeners()
         setupSwitchListeners()
+        setupClickListeners()
         loadCurrentSettings()
     }
 
-    private fun getLayoutResource(): Int {
-        // Replace with your actual layout ID, e.g., R.layout.fragment_settings
-        return android.R.layout.simple_list_item_1
-    }
-
-    private fun initializeViews() {
-        // Optional initialization logic
-    }
-
     private fun setupClickListeners() {
-        view?.findViewById<View>(getId("signOutButton"))?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.signOutButton)?.setOnClickListener {
             showSignOutConfirmation()
         }
     }
 
     private fun setupSwitchListeners() {
-        view?.findViewById<SwitchCompat>(getId("darkModeSwitch"))
+        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)
             ?.setOnCheckedChangeListener { _, isChecked ->
                 isDarkModeEnabled = isChecked
                 sharedPreferences.edit { putBoolean("darkMode", isChecked) }
                 showSnackbar("Dark mode ${if (isChecked) "enabled" else "disabled"}")
             }
 
-        view?.findViewById<SwitchCompat>(getId("notificationsSwitch"))
+        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)
             ?.setOnCheckedChangeListener { _, isChecked ->
                 areNotificationsEnabled = isChecked
                 sharedPreferences.edit { putBoolean("notificationsEnabled", isChecked) }
@@ -88,8 +77,8 @@ class SettingsFragment : Fragment() {
         isDarkModeEnabled = sharedPreferences.getBoolean("darkMode", false)
         areNotificationsEnabled = sharedPreferences.getBoolean("notificationsEnabled", true)
 
-        setSwitchChecked(getId("darkModeSwitch"), isDarkModeEnabled)
-        setSwitchChecked(getId("notificationsSwitch"), areNotificationsEnabled)
+        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.isChecked = isDarkModeEnabled
+        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = areNotificationsEnabled
     }
 
     private fun enableNotifications() {
@@ -137,21 +126,13 @@ class SettingsFragment : Fragment() {
         showSnackbar("Signed out successfully")
     }
 
-    private fun setSwitchChecked(viewId: Int, checked: Boolean) {
-        view?.findViewById<SwitchCompat>(viewId)?.isChecked = checked
-    }
-
     private fun showSnackbar(message: String) {
         view?.let { Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show() }
     }
 
-    private fun getId(resourceName: String): Int {
-        return View.generateViewId()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        rootView = null
     }
 
     companion object {
