@@ -152,23 +152,19 @@ Got it! Here’s your **API Integration** section rewritten to perfectly match y
 ### Authentication & Onboarding
 | Welcome Screen | Sign In | Sign Up |
 |----------------|---------|---------|
-| ![WhatsApp Image 2025-10-14 at 23 26 00 (2)](https://github.com/user-attachments/assets/fa85a269-fa04-49d0-9b72-88606d0928d8)
- |  ![WhatsApp Image 2025-10-14 at 23 26 00 (1)](https://github.com/user-attachments/assets/bd922391-c899-4a5b-bfc7-e3ec65b7b5b8)
-| ![WhatsApp Image 2025-10-14 at 23 25 59 (3)](https://github.com/user-attachments/assets/1ec14794-25f9-46a2-993e-5b850922b994)
- |![WhatsApp Image 2025-10-14 at 23 26 00](https://github.com/user-attachments/assets/0cdcd5f7-6d57-4e26-9b19-4cd201a66c71)
-
+| <img src="https://github.com/user-attachments/assets/fa85a269-fa04-49d0-9b72-88606d0928d8" width="150"> | <img src="https://github.com/user-attachments/assets/bd922391-c899-4a5b-bfc7-e3ec65b7b5b8" width="150"> | <img src="https://github.com/user-attachments/assets/1ec14794-25f9-46a2-993e-5b850922b994" width="150"> |
 
 ### Core Features
 | Home Discovery | Event Exploration | Saved Events |
-|----------------|-------------------|--------------|
-|![WhatsApp Image 2025-10-14 at 23 25 59 (2)](https://github.com/user-attachments/assets/6face01e-b9c3-4584-b3a9-83751b3668bf)| ![WhatsApp Image 2025-10-14 at 23 25 59 (1)](https://github.com/user-attachments/assets/a6ba8467-7da4-4259-95d4-e9efa69c8002)
- | ![WhatsApp Image 2025-10-14 at 23 25 59](https://github.com/user-attachments/assets/88c7dab6-c339-406f-8b2c-3eceeb16ad3c)|
+|----------------|-----------------|--------------|
+| <img src="https://github.com/user-attachments/assets/6face01e-b9c3-4584-b3a9-83751b3668bf" width="150"> | <img src="https://github.com/user-attachments/assets/a6ba8467-7da4-4259-95d4-e9efa69c8002" width="150"> | <img src="https://github.com/user-attachments/assets/88c7dab6-c339-406f-8b2c-3eceeb16ad3c" width="150"> |
 
 ### User Experience
 | User Profile | Settings | Event Details |
-|--------------|----------|---------------|
-| ![WhatsApp Image 2025-10-14 at 23 25 58 (1)](https://github.com/user-attachments/assets/4daf630e-ae5d-483d-bdc0-0f84ec1d8edc) | ![WhatsApp Image 2025-10-14 at 23 25 58](https://github.com/user-attachments/assets/70a9cbdd-032a-4b2c-b469-faa1ef038822)|
+|--------------|---------|---------------|
+| <img src="https://github.com/user-attachments/assets/4daf630e-ae5d-483d-bdc0-0f84ec1d8edc" width="150"> | <img src="https://github.com/user-attachments/assets/70a9cbdd-032a-4b2c-b469-faa1ef038822" width="150"> | |
 </div>
+
 
 ---
 
@@ -372,6 +368,13 @@ jobs:
 * Ensures that your app builds correctly for every release branch
 * Provides downloadable APKs/AABs directly from GitHub Actions
 * Automates testing to catch issues before deployment
+
+<img width="1920" height="1032" alt="Screenshot 2025-10-15 010731" src="https://github.com/user-attachments/assets/2d537807-3cd8-4dad-894a-b4d95f2556b0" />
+
+<img width="1920" height="1032" alt="Screenshot 2025-10-15 010746" src="https://github.com/user-attachments/assets/f159b319-0361-4922-b669-2a16a3e828b0" />
+
+<img width="1920" height="1032" alt="Screenshot 2025-10-15 010833" src="https://github.com/user-attachments/assets/fc02712b-9f25-4d03-bfc5-190f4a0dbcce" />
+
 
 ---
 
