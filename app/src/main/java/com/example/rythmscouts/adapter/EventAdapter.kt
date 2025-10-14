@@ -22,6 +22,7 @@ import com.example.rythmscouts.network.EventVenueEmbedded
 class EventAdapter(
     private var events: List<Event>,
     private val username: String = "testing-user",
+    private val isHomePage: Boolean = false, // new flag
     var savedEventIds: List<String> = emptyList()
 ) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
@@ -34,8 +35,8 @@ class EventAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_event, parent, false)
+        val layoutRes = if (isHomePage) R.layout.item_event_home else R.layout.item_event
+        val view = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
         return EventViewHolder(view)
     }
 
