@@ -1,16 +1,39 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.RythmScouts" parent="Theme.Material3.DayNight.NoActionBar">
+<!-- Base application theme. -->
+<style name="Theme.RythmScouts" parent="Theme.Material3.DayNight.NoActionBar">        <!-- Primary brand color. -->
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item> <!-- 50% opacity version -->
+    <item name="android:colorBackground">@color/colorBackground</item>
+
+    <item name="colorSecondary">@color/colorSecondary</item>        <!-- secondary text -->
+    <item name="colorOnSecondary">@color/colorOnSecondary</item>
+
+    <item name="colorOnBackground">@color/colorOnBackground</item>
+
+    <!--<item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView</item> -->
+
     <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-    </style>
+    <item name="colorOnPrimary">@color/colorOnPrimary</item>
+
+    <!-- Tertiary brand color. -->
+    <item name="colorTertiary">@color/colorTertiary</item>
+    <item name="colorOnTertiary">@color/colorOnTertiary</item>
+
+    <!-- Surface colors -->
+    <item name="colorSurface">@color/colorSurface</item>
+    <item name="colorOnSurface">@color/colorOnSurface</item>
+
+    <!-- Bottom Navigation -->
+    <item name="bottomNavigationStyle">@style/Widget.Material3.BottomNavigationView</item>
+
+
+    <!-- Status bar color. -->
+
+    <!-- Customize your theme here. -->
+</style>
+<!-- Add this style for rounded text fields -->
+<style name="RoundedTextField" parent="">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSize">8dp</item>
+</style>
 </resources>
