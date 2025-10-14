@@ -11,11 +11,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.database.FirebaseDatabase
 
 class SettingsFragment : Fragment() {
 
@@ -29,7 +32,7 @@ class SettingsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         rootView = inflater.inflate(R.layout.fragment_settings, container, false)
         return rootView!!
@@ -44,6 +47,7 @@ class SettingsFragment : Fragment() {
         setupSwitchListeners()
         setupClickListeners()
         loadCurrentSettings()
+        loadUserData()
     }
 
     private fun setupClickListeners() {
@@ -65,11 +69,8 @@ class SettingsFragment : Fragment() {
                 areNotificationsEnabled = isChecked
                 sharedPreferences.edit { putBoolean("notificationsEnabled", isChecked) }
 
-                if (isChecked) {
-                    enableNotifications()
-                } else {
-                    showSnackbar("Notifications disabled")
-                }
+                if (isChecked) enableNotifications()
+                else showSnackbar("Notifications disabled")
             }
     }
 
@@ -93,11 +94,6 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        createNotificationChannel()
-        showSnackbar("Notifications enabled")
-    }
-
-    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "App Notifications"
             val descriptionText = "General notifications for RhythmScout"
@@ -109,15 +105,15 @@ class SettingsFragment : Fragment() {
                 requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+
+        showSnackbar("Notifications enabled")
     }
 
     private fun showSignOutConfirmation() {
         AlertDialog.Builder(requireContext())
             .setTitle("Sign Out")
             .setMessage("Are you sure you want to sign out?")
-            .setPositiveButton("Sign Out") { _, _ ->
-                performSignOut()
-            }
+            .setPositiveButton("Sign Out") { _, _ -> performSignOut() }
             .setNegativeButton("Cancel", null)
             .show()
     }
@@ -130,12 +126,30 @@ class SettingsFragment : Fragment() {
         view?.let { Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show() }
     }
 
+    private fun loadUserData() {
+        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
+
+        dbRef.get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                val username = snapshot.child("username").getValue(String::class.java) ?: ""
+                val email = snapshot.child("email").getValue(String::class.java) ?: ""
+
+                rootView?.findViewById<TextInputEditText>(R.id.usernameEditText)?.setText(username)
+                rootView?.findViewById<TextInputEditText>(R.id.emailEditText)?.setText(email)
+                rootView?.findViewById<TextView>(R.id.userName)?.text = username
+                rootView?.findViewById<TextView>(R.id.userEmail)?.text = email
+            } else {
+                showSnackbar("User data not found")
+            }
+        }.addOnFailureListener {
+            showSnackbar("Failed to load user data")
+        }
+    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         rootView = null
-    }
-
-    companion object {
-        fun newInstance(): SettingsFragment = SettingsFragment()
     }
 }
