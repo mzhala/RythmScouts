@@ -39,7 +39,7 @@ class SettingsFragment : Fragment() {
     // Dynamic language names based on current language
     private val languageNames: Array<String>
         get() = when (getPersistedLanguage()) {
-            "zu" -> arrayOf("iNgisi", "isiZulu", "Xitsonga") // Zulu names
+            "zu" -> arrayOf("isiNgisi", "isiZulu", "Xitsonga") // Zulu names
             "tn" -> arrayOf("Xinghezi", "isiZulu", "Xitsonga") // Tsonga names
             else -> arrayOf("English", "isiZulu", "Xitsonga") // English names
         }
