@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RythmScouts</string>
+    <string name="title_home">Ikhaya</string>
+    <string name="title_explore">Hlola</string>
+    <string name="title_my_events">Imicimbi Yami</string>
+    <string name="title_settings">Izilungiselelo</string>
+
+    <string name="nav_home">Ikhaya</string>
+    <string name="nav_explore">Hlola</string>
+    <string name="nav_my_events">Imicimbi Yami</string>
+    <string name="nav_settings">Izilungiselelo</string>
+
+
+    <string name="subtitle_home">Thola imicimbi yomculo emangalisayo eduze kwakho</string>
+    <string name="subtitle_explore">Thola imicimbi ngeDolobha</string>
+    <string name="subtitle_my_events">Imicimbi yakho egciniwe</string>
+    <string name="subtitle_settings">Phatha i-akhawunti yakho nezintandokazi</string>
+
+    <string name="hello_blank_fragment">Sawubona isiqephu esingenalutho</string>
+    <string name="buy_tickets">thenga_amathikithi</string>
+    <string name="settings_title">Izilungiselelo</string>
+    <string name="settings_subtitle">Phatha i-akhawunti yakho nokuthanda kwakho</string>
+    <string name="change_photo">Shintsha Isithombe</string>
+    <string name="profile_section">Iphrofayili</string>
+    <string name="first_name">Igama Lokuqala</string>
+    <string name="last_name">Isibongo</string>
+    <string name="username">Igama lomsebenzisi</string>
+    <string name="email">I-imeyili</string>
+    <string name="update_profile">Buyekeza Iphrofayili</string>
+    <string name="security_section">Ezokuphepha</string>
+    <string name="current_password">Iphasiwedi Yamanje</string>
+    <string name="new_password">Iphasiwedi Entsha</string>
+    <string name="confirm_password">Qinisekisa Iphasiwedi Entsha</string>
+    <string name="change_password">Shintsha Iphasiwedi</string>
+    <string name="preferences_section">Okuthandwayo</string>
+    <string name="dark_mode">Imodi Emnyama</string>
+    <string name="dark_mode_desc">Shintsha itimu emnyama/ekhanyayo</string>
+    <string name="language">Ulimi</string>
+    <string name="language_desc">Khetha ulimi oluthandayo</string>
+    <string name="push_notifications">Izaziso Zokushayela</string>
+    <string name="notifications_desc">Thola izaziso mayelana nemicimbi</string>
+    <string name="sign_out">Phuma</string>
+    <string name="sign_out_confirmation">Uqinisekile ukuthi ufuna ukuphuma?</string>
+    <string name="select_language">Khetha Ulimi</string>
+    <string name="profile_updated">Iphrofayili ibuyekezwe ngempumelelo</string>
+    <string name="password_changed">Iphasiwedi ishintshiwe ngempumelelo</string>
+    <string name="signed_out">Uphume ngempumelelo</string>
+    <string name="have_an_account_sign_in">Une-akhawunti? NGENA NGENKUNDLA</string>
+    <string name="welcome_to_rythmscouts">Wamukelekile ku-RythmScouts</string>
+    <string name="onboarding_description">Thola futhi ulondoloze imicimbi yakho yomculo eyintandokazi. Ungaphindi uphuthelwa yikhonsathi!</string>
+    <string name="feature_find_events">• Thola imicimbi yasendaweni yomculo</string>
+    <string name="feature_save_events">• Londoloza imicimbi yakho oyithandayo</string>
+    <string name="feature_recommendations">• Thola izincomo ezizibonelo</string>
+    <string name="create_account">Dala I-akhawunti</string>
+    <string name="sign_in">Ngena Ngemvume</string>
+</resources>

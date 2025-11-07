@@ -1,21 +1,21 @@
 <resources>
-    <string name="app_name">RythmScouts</string>
+    <string name="app_name" translatable="false">RythmScouts</string>
+    <string name="title_home">Home</string>
+    <string name="title_explore">Explore</string>
+    <string name="title_my_events">My Events</string>
+    <string name="title_settings">Settings</string>
+
     <string name="nav_home">Home</string>
     <string name="nav_explore">Explore</string>
     <string name="nav_my_events">My Events</string>
     <string name="nav_settings">Settings</string>
 
-    <string name="title_home">Rhythm Scout</string>
-    <string name="title_explore">Explore Events</string>
-    <string name="title_my_events">My Events</string>
-    <string name="title_settings">Settings</string>
 
     <string name="subtitle_home">Discover amazing music events near you</string>
     <string name="subtitle_explore">Find events by city</string>
     <string name="subtitle_my_events">Your saved events</string>
     <string name="subtitle_settings">Manage your account and preferences</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="buy_tickets">buy_tickets</string>
     <string name="settings_title">Settings</string>
