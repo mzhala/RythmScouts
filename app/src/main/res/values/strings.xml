@@ -1,10 +1,9 @@
 <resources>
-    <string name="app_name">RythmScouts</string>
+    <string name="app_name" translatable="false">RythmScouts</string>
     <string name="title_home">Home</string>
     <string name="title_explore">Explore</string>
     <string name="title_my_events">My Events</string>
     <string name="title_settings">Settings</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="buy_tickets">buy_tickets</string>
     <string name="settings_title">Settings</string>
