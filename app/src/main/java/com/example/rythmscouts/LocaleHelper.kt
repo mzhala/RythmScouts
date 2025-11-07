@@ -39,6 +39,7 @@ object LocaleHelper {
     fun getPersistedLanguage(context: Context): String {
         val prefs = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
         return prefs.getString("selected_language", "en") ?: "en"
+
     }
 
     fun applyLanguageToContext(context: Context): Context {

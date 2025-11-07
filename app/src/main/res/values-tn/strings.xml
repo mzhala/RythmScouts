@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RythmScouts</string>
+    <string name="title_home">Kaya</string>
+    <string name="title_explore">Lava</string>
+    <string name="title_my_events">Swiyimo swa Mina</string>
+    <string name="title_settings">Swivangelo</string>
+
+    <string name="nav_home">Kaya</string>
+    <string name="nav_explore">Lava</string>
+    <string name="nav_my_events">Swiyimo swa Mina</string>
+    <string name="nav_settings">Swivangelo</string>
+
+
+    <string name="subtitle_home">Kuma swiyimo swa ntlangu swo hlamarisa ehansi ka wena</string>
+    <string name="subtitle_explore">Kuma swiyimo hi doroba</string>
+    <string name="subtitle_my_events">Swiyimo swa wena leswi hlayisiweke</string>
+    <string name="subtitle_settings">Lawula akhawunti ya wena na swikunsela</string>
+
+    <string name="hello_blank_fragment">Hakamile xiphemu xo sala</string>
+    <string name="buy_tickets">rega_matikhiti</string>
+    <string name="settings_title">Swivangelo</string>
+    <string name="settings_subtitle">Lawula akhawunti ya wena na swikunsela</string>
+    <string name="change_photo">Cinca Xifaniso</string>
+    <string name="profile_section">Profayili</string>
+    <string name="first_name">Vito ra Vumbirhi</string>
+    <string name="last_name">Vito ra Ntumbuluko</string>
+    <string name="username">Vito ra Mutirhisi</string>
+    <string name="email">Imeyili</string>
+    <string name="update_profile">Antshuxa Profayili</string>
+    <string name="security_section">Vuhlayiseki</string>
+    <string name="current_password">Xikombelo xa Sweswi</string>
+    <string name="new_password">Xikombelo Xintshwa</string>
+    <string name="confirm_password">Tiyisisa Xikombelo Xintshwa</string>
+    <string name="change_password">Cinca Xikombelo</string>
+    <string name="preferences_section">Swikunsela</string>
+    <string name="dark_mode">Ndlela yo Rima</string>
+    <string name="dark_mode_desc">Sindzuluta xitayili xo rima/xo basa</string>
+    <string name="language">Ririmi</string>
+    <string name="language_desc">Hlawula ririmi ro rhandza</string>
+    <string name="push_notifications">Miyeliso ya Push</string>
+    <string name="notifications_desc">Kuma miyeliso mayelana na swiyimo</string>
+    <string name="sign_out">Humeka</string>
+    <string name="sign_out_confirmation">U na xiximi lexi u lava ku huma?</string>
+    <string name="select_language">Hlawula Ririmi</string>
+    <string name="profile_updated">Profayili yi antshuxiwile hi ku humelela</string>
+    <string name="password_changed">Xikombelo xi cincile hi ku humelela</string>
+    <string name="signed_out">Ku humeriwe hi ku humelela</string>
+    <string name="have_an_account_sign_in">U na akhawunti? NGENA</string>
+    <!-- Splash and Onboarding -->
+    <string name="welcome_to_rythmscouts">Amukelwa eka RythmScouts</string>
+    <string name="onboarding_description">Kuma u hi layisa swiyimo swa ntlangu leswi u swi rhandzaka. U nga ha siyi konsati nakambe!</string>
+    <string name="feature_find_events">• Kuma swiyimo swa ntlangu swa le kaya</string>
+    <string name="feature_save_events">• Hlayisa swiyimo leswi u swi rhandzaka</string>
+    <string name="feature_recommendations">• Kuma ndlela leti kongomisiweke</string>
+    <string name="create_account">Tumbuluxa Akhawunti</string>
+    <string name="sign_in">Ngena</string>
+    <string name="language_change_confirmation">U na xiximi lexi u lava ku cinca ririmi? App yi ta sungula nakambe.</string>
+    <string name="change">Cinca</string>
+    <string name="cancel">Kansela</string>
+    <string name="discover_and_save_your_favorite_music_events_never_miss_a_concert_again">Kuma u hi layisa swiyimo swa ntlangu leswi u swi rhandzaka. U nga ha siyi konsati nakambe!</string>
+    <string name="reset_password">Seta Xikombelo Xintshwa</string>
+    <string name="email_address">Xiyimo xa Imeyili</string>
+    <string name="enter_your_email">Ngena imeyili ya wena</string>
+    <string name="password">Xikombelo</string>
+    <string name="enter_password">Ngena Xikombelo</string>
+    <string name="forgot_password">U rivalile Xikombelo?</string>
+    <string name="or_sign_in_with">kumbe ngena hi</string>
+    <string name="sign_in_with_google">Ngena hi Google</string>
+    <string name="don_t_have_an_account_sign_up">A wu na akhawunti? TLARISA</string>
+    <string name="create_your_account">Tumbuluxa akhawunti ya wena</string>
+    <string name="enter_username">Ngena Vito ra Mutirhisi</string>
+    <string name="enter_email_address">Ngena Xiyimo xa Imeyili</string>
+    <string name="i_understood_the_terms_amp_policy"><![CDATA[Ndzi twisisa swileriso na xiyimo.]]></string>
+    <string name="sign_up">Tlarisa</string>
+    <string name="or_sign_up_with">kumbe tlarisa hi</string>
+    <string name="sign_up_with_google">Tlarisa hi Google</string>
+    <string name="event_saved">Xiyimo xi Hlayisiwile!</string>
+    <string name="can_t_wait_to_see_you_there">A ndzi ha ti mi vona kwala!</string>
+    <string name="close">Vala</string>
+    <string name="discover_events">Kuma Swiyimo</string>
+    <string name="never_miss_the_events_you_love">U nga ha siyi swiyimo leswi u swi rhandzaka!</string>
+    <string name="happening_today">Swi humelela Namuntlha</string>
+    <string name="see_all">Vona Hinkwaswo</string>
+    <string name="tickets_ending_soon">Matikhiti ya hela ku nonoka</string>
+    <string name="upcoming_events">Swiyimo Leswi Taka</string>
+    <string name="past_events">Swiyimo Leswi Heleke</string>
+    <string name="event_title">Xihloko xa Xiyimo</string>
+    <string name="event_date">Siku ra Xiyimo</string>
+    <string name="event_venue">Ndawo ya Xiyimo</string>
+    <string name="save">Hlayisa</string>
+
+</resources>
