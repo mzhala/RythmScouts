@@ -23,7 +23,7 @@ import retrofit2.Response
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class HomeFragment : Fragment() {
+class HomeFragment : BaseFragment() {
 
     private lateinit var todayViewPager: ViewPager2
     private lateinit var endingSoonViewPager: ViewPager2

@@ -7,7 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import com.example.rythmscouts.databinding.ActivitySplashBinding
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySplashBinding
     private val splashTimeOut: Long = 5000 // 5 seconds

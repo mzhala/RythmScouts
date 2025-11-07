@@ -16,7 +16,7 @@ import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
 import com.jakewharton.threetenabp.AndroidThreeTen
 
-class MyEventsFragment : Fragment() {
+class MyEventsFragment : BaseFragment() {
 
     private var _binding: FragmentMyEventsBinding? = null
     private val binding get() = _binding!!

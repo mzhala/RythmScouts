@@ -24,7 +24,7 @@
                 android:id="@+id/homeTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Discover Events"
+                android:text="@string/discover_events"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/black" />
@@ -33,7 +33,7 @@
                 android:id="@+id/homeTagline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Never miss the events you love!"
+                android:text="@string/never_miss_the_events_you_love"
                 android:textSize="14sp"
                 android:textColor="?attr/colorSecondary"
                 android:layout_marginTop="4dp"/>
@@ -51,7 +51,7 @@
                 android:id="@+id/todayLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Happening Today"
+                android:text="@string/happening_today"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="@color/black" />
@@ -64,7 +64,7 @@
                 android:id="@+id/todaySeeAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="See All"
+                android:text="@string/see_all"
                 android:textColor="@color/colorPrimary"
                 android:textSize="14sp"/>
         </LinearLayout>
@@ -102,7 +102,7 @@
                 android:id="@+id/endingSoonLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tickets Ending Soon"
+                android:text="@string/tickets_ending_soon"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="@color/black" />
@@ -115,7 +115,7 @@
                 android:id="@+id/endingSoonSeeAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="See All"
+                android:text="@string/see_all"
                 android:textColor="@color/colorPrimary"
                 android:textSize="14sp"/>
         </LinearLayout>

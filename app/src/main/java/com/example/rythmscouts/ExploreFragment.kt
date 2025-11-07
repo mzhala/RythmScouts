@@ -24,7 +24,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ExploreFragment : Fragment() {
+class ExploreFragment : BaseFragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: EventAdapter

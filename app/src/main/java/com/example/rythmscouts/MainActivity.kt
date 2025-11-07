@@ -14,7 +14,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     private val homeFragment = HomeFragment()
     private val exploreFragment = ExploreFragment()

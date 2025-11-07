@@ -23,7 +23,7 @@
             android:textStyle="bold"
             android:textSize="14sp"
             android:layout_marginTop="8dp"
-            android:text="Event Title" />
+            android:text="@string/event_title" />
 
         <TextView
             android:id="@+id/eventDate"
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:layout_marginTop="4dp"
-            android:text="Event Date" />
+            android:text="@string/event_date" />
 
         <TextView
             android:id="@+id/eventVenue"
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:layout_marginTop="2dp"
-            android:text="Event Venue" />
+            android:text="@string/event_venue" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,7 +52,7 @@
                 android:id="@+id/saveButton"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:text="Save"
+                android:text="@string/save"
                 android:layout_marginTop="8dp" />
 
             <Space

@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import com.example.rythmscouts.databinding.ActivityOnboardingBinding
 
-class OnboardingActivity : AppCompatActivity() {
+class OnboardingActivity : BaseActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
 

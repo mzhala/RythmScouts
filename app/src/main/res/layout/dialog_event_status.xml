@@ -10,7 +10,7 @@
         android:id="@+id/statusTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Event Saved!"
+        android:text="@string/event_saved"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
@@ -29,7 +29,7 @@
         android:id="@+id/statusMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Can't wait to see you there!"
+        android:text="@string/can_t_wait_to_see_you_there"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:gravity="center" />
@@ -37,6 +37,6 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Close"
+        android:text="@string/close"
         android:id="@+id/closeButton"/>
 </LinearLayout>

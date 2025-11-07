@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.rythmscouts.databinding.ActivityResetPasswordBinding
 import com.google.firebase.auth.FirebaseAuth
 
-class ResetPasswordActivity : AppCompatActivity() {
+class ResetPasswordActivity : BaseActivity() {
 
     private lateinit var binding: ActivityResetPasswordBinding
     private lateinit var auth: FirebaseAuth
