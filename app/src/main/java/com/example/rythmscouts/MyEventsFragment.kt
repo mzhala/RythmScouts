@@ -38,7 +38,6 @@ class MyEventsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
         setupToggleButtons()
         fetchSavedEvents(showPast = false)
@@ -65,15 +64,12 @@ class MyEventsFragment : Fragment() {
     }
 
     private fun fetchSavedEvents(showPast: Boolean) {
-        if (userEmail == null) {
+        val email = userEmail ?: run {
             Log.e("MyEventsFragment", "No user email received")
             return
         }
 
-        // Firebase keys can't contain '.', '#', '$', '[', or ']'
-        // Replace '.' with ',' to make the email safe for Firebase paths
-        val safeEmail = userEmail!!.replace(".", ",")
-
+        val safeEmail = email.replace(".", ",")
         val dbRef = FirebaseDatabase.getInstance()
             .getReference("saved_events")
             .child(safeEmail)
@@ -81,8 +77,13 @@ class MyEventsFragment : Fragment() {
         dbRef.get().addOnSuccessListener { snapshot ->
             if (!isAdded || _binding == null) return@addOnSuccessListener
 
-            val events = mutableListOf<FirebaseEvent>()
+            // 1️⃣ Collect saved event IDs
+            val savedIds = snapshot.children.mapNotNull { it.key }
+            eventAdapter.savedEventIds = savedIds // <-- update adapter
+
+            // 2️⃣ Prepare list of events to display
             val now = LocalDate.now()
+            val events = mutableListOf<FirebaseEvent>()
 
             snapshot.children.forEach { child ->
                 val id = child.child("id").getValue(String::class.java) ?: return@forEach
@@ -92,6 +93,7 @@ class MyEventsFragment : Fragment() {
                 val venue = child.child("venue").getValue(String::class.java) ?: "Unknown Venue"
                 val imageUrl = child.child("imageUrl").getValue(String::class.java) ?: ""
                 val buyUrl = child.child("buyUrl").getValue(String::class.java) ?: ""
+                val formattedDate = child.child("date").getValue(String::class.java)
 
                 try {
                     val eventDate = LocalDate.parse(dateRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -104,19 +106,19 @@ class MyEventsFragment : Fragment() {
                                 name = name,
                                 date_raw = dateRaw,
                                 time_raw = timeRaw,
-                                date = child.child("date").getValue(String::class.java),
+                                date = formattedDate,
                                 venue = venue,
                                 imageUrl = imageUrl,
                                 buyUrl = buyUrl
                             )
                         )
                     }
-
                 } catch (e: DateTimeParseException) {
                     Log.e("MyEventsFragment", "Failed to parse date: $dateRaw")
                 }
             }
 
+            // 3️⃣ Update adapter
             if (isAdded && _binding != null) {
                 eventAdapter.updateData(events)
                 binding.eventsCountTextView.text = "${events.size} events"

@@ -4,22 +4,22 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_home"
-        android:title="@string/title_home" />
+        android:title="@string/nav_home" />
 
     <item
         android:id="@+id/navigation_explore"
         android:icon="@drawable/ic_explore"
-        android:title="@string/title_explore" />
+        android:title="@string/nav_explore" />
 
     <item
         android:id="@+id/navigation_my_events"
         android:icon="@drawable/ic_my_events"
-        android:title="@string/title_my_events" />
+        android:title="@string/nav_my_events" />
 
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_settings"
-        android:title="@string/title_settings" />
+        android:title="@string/nav_settings" />
 
 
 </menu>
