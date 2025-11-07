@@ -32,16 +32,14 @@ class SettingsFragment : Fragment() {
     private var isDarkModeEnabled = false
     private var areNotificationsEnabled = true
 
-    // Language dropdown
     private lateinit var languageDropdown: AutoCompleteTextView
     private val languageCodes = arrayOf("en", "zu", "tn")
 
-    // Dynamic language names based on current language
     private val languageNames: Array<String>
         get() = when (getPersistedLanguage()) {
-            "zu" -> arrayOf("isiNgisi", "isiZulu", "Xitsonga") // Zulu names
-            "tn" -> arrayOf("Xinghezi", "isiZulu", "Xitsonga") // Tsonga names
-            else -> arrayOf("English", "isiZulu", "Xitsonga") // English names
+            "zu" -> arrayOf("isiNgisi", "isiZulu", "Xitsonga")
+            "tn" -> arrayOf("Xinghezi", "isiZulu", "Xitsonga")
+            else -> arrayOf("English", "isiZulu", "Xitsonga")
         }
 
     private val CHANNEL_ID = "notifications_channel"
@@ -60,278 +58,11 @@ class SettingsFragment : Fragment() {
 
         sharedPreferences = requireContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
 
-        // Initialize language dropdown
         initLanguageDropdown()
-
         setupSwitchListeners()
         setupClickListeners()
         loadCurrentSettings()
         loadUserData()
-    }
-
-    private fun initLanguageDropdown() {
-        languageDropdown = rootView?.findViewById(R.id.languageDropdown) ?: return
-
-        // Create adapter for dropdown with dynamic language names
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
-        languageDropdown.setAdapter(adapter)
-
-        // Set current language
-        val currentLanguage = getPersistedLanguage()
-        val currentPosition = languageCodes.indexOf(currentLanguage)
-        if (currentPosition != -1) {
-            languageDropdown.setText(languageNames[currentPosition], false)
-        }
-
-        // Handle language selection
-        languageDropdown.setOnItemClickListener { parent, view, position, id ->
-            val selectedLanguageCode = languageCodes[position]
-            val currentLanguageCode = getPersistedLanguage()
-
-            // Only change if language actually changed
-            if (selectedLanguageCode != currentLanguageCode) {
-                showLanguageChangeConfirmation(selectedLanguageCode)
-            }
-        }
-    }
-
-    private fun showLanguageChangeConfirmation(languageCode: String) {
-        // Get messages in current language
-        val currentLanguage = getPersistedLanguage()
-        val (message, positiveButton, negativeButton) = when (currentLanguage) {
-            "zu" -> Triple(
-                "Uqinisekile ukuthi ufuna ukushintsha ulimi? Uhlelo lizovulwa kabusha.",
-                "Shintsha",
-                "Khansela"
-            )
-            "tn" -> Triple(
-                "U na xiximi lexi u lava ku cinca ririmi? App yi ta sungula nakambe.",
-                "Cinca",
-                "Kansela"
-            )
-            else -> Triple(
-                "Are you sure you want to change the language? The app will restart.",
-                "Change",
-                "Cancel"
-            )
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.select_language))
-            .setMessage(message)
-            .setPositiveButton(positiveButton) { dialog, which ->
-                changeAppLanguage(languageCode)
-            }
-            .setNegativeButton(negativeButton) { dialog, which ->
-                // Reset dropdown to current language with updated names
-                val currentLang = getPersistedLanguage()
-                val currentPos = languageCodes.indexOf(currentLang)
-                if (currentPos != -1) {
-                    languageDropdown.setText(languageNames[currentPos], false)
-                }
-            }
-            .show()
-    }
-
-    private fun changeAppLanguage(languageCode: String) {
-        // Save the language preference
-        sharedPreferences.edit {
-            putString("selected_language", languageCode)
-        }
-
-        // Show success message in the NEW selected language
-        val message = when (languageCode) {
-            "zu" -> "Indlela yolimi ishintshiwe"
-            "tn" -> "Ririmi ri cincile hi ku humelela"
-            else -> "Language changed successfully"
-        }
-        showSnackbar(message)
-
-        // Restart activity after a delay
-        Handler(Looper.getMainLooper()).postDelayed({
-            restartActivity()
-        }, 1000)
-    }
-
-    private fun restartActivity() {
-        // Simple restart without complex transitions
-        requireActivity().recreate()
-    }
-
-    private fun getPersistedLanguage(): String {
-        return sharedPreferences.getString("selected_language", "en") ?: "en"
-    }
-
-    private fun setupClickListeners() {
-        rootView?.findViewById<View>(R.id.signOutButton)?.setOnClickListener {
-            showSignOutConfirmation()
-        }
-
-        rootView?.findViewById<View>(R.id.updateProfileButton)?.setOnClickListener {
-            updateProfile()
-        }
-
-        rootView?.findViewById<View>(R.id.changePasswordButton)?.setOnClickListener {
-            changePassword()
-        }
-    }
-
-    private fun setupSwitchListeners() {
-        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)
-            ?.setOnCheckedChangeListener { _, isChecked ->
-                isDarkModeEnabled = isChecked
-                sharedPreferences.edit { putBoolean("darkMode", isChecked) }
-
-                val message = when (getPersistedLanguage()) {
-                    "zu" -> "Imodi emnyama ${if (isChecked) "ivuliwe" else "ivaliwe"}"
-                    "tn" -> "Ndlela yo Rima ${if (isChecked) "yi pfumile" else "yi valeriwe"}"
-                    else -> "Dark mode ${if (isChecked) "enabled" else "disabled"}"
-                }
-                showSnackbar(message)
-
-                // Apply dark mode
-                toggleDarkMode(isChecked)
-            }
-
-        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)
-            ?.setOnCheckedChangeListener { _, isChecked ->
-                areNotificationsEnabled = isChecked
-                sharedPreferences.edit { putBoolean("notificationsEnabled", isChecked) }
-
-                if (isChecked) {
-                    enableNotifications()
-                } else {
-                    val message = when (getPersistedLanguage()) {
-                        "zu" -> "Izaziso zivaliwe"
-                        "tn" -> "Miyeliso yi valeriwe"
-                        else -> "Notifications disabled"
-                    }
-                    showSnackbar(message)
-                }
-            }
-    }
-
-    private fun toggleDarkMode(isDarkMode: Boolean) {
-        if (isDarkMode) {
-            // Apply dark theme
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES)
-        } else {
-            // Apply light theme
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO)
-        }
-    }
-
-    private fun loadCurrentSettings() {
-        isDarkModeEnabled = sharedPreferences.getBoolean("darkMode", false)
-        areNotificationsEnabled = sharedPreferences.getBoolean("notificationsEnabled", true)
-
-        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.isChecked = isDarkModeEnabled
-        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = areNotificationsEnabled
-
-        // Apply current dark mode setting
-        toggleDarkMode(isDarkModeEnabled)
-    }
-
-    private fun enableNotifications() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
-                return
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "App Notifications"
-            val descriptionText = "General notifications for RhythmScout"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            val notificationManager: NotificationManager =
-                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val message = when (getPersistedLanguage()) {
-            "zu" -> "Izaziso zivuliwe"
-            "tn" -> "Miyeliso yi pfumile"
-            else -> "Notifications enabled"
-        }
-        showSnackbar(message)
-    }
-
-    private fun showSignOutConfirmation() {
-        val currentLanguage = getPersistedLanguage()
-        val message = when (currentLanguage) {
-            "zu" -> "Uqinisekile ukuthi ufuna ukuphuma?"
-            "tn" -> "U na xiximi lexi u lava ku huma?"
-            else -> "Are you sure you want to sign out?"
-        }
-
-        val positiveButton = when (currentLanguage) {
-            "zu" -> "Phuma"
-            "tn" -> "Humeka"
-            else -> "Sign Out"
-        }
-
-        val negativeButton = when (currentLanguage) {
-            "zu" -> "Khansela"
-            "tn" -> "Kansela"
-            else -> "Cancel"
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.sign_out))
-            .setMessage(message)
-            .setPositiveButton(positiveButton) { _, _ -> performSignOut() }
-            .setNegativeButton(negativeButton, null)
-            .show()
-    }
-
-    private fun performSignOut() {
-        // Sign out from Firebase
-        FirebaseAuth.getInstance().signOut()
-
-        // Show confirmation in current language
-        val message = when (getPersistedLanguage()) {
-            "zu" -> "Uphume ngempumelelo"
-            "tn" -> "Ku humeriwe hi ku humelela"
-            else -> "Signed out successfully"
-        }
-        showSnackbar(message)
-
-        // Navigate to SignInActivity
-        val intent = android.content.Intent(requireContext(), SignInActivity::class.java)
-        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-    }
-
-    private fun updateProfile() {
-        // Implement profile update logic
-        val message = when (getPersistedLanguage()) {
-            "zu" -> "Iphrofayili ibuyekezwe ngempumelelo"
-            "tn" -> "Profayili yi antshuxiwile hi ku humelela"
-            else -> "Profile updated successfully"
-        }
-        showSnackbar(message)
-    }
-
-    private fun changePassword() {
-        // Implement password change logic
-        val message = when (getPersistedLanguage()) {
-            "zu" -> "Iphasiwedi ishintshiwe ngempumelelo"
-            "tn" -> "Xikombelo xi cincile hi ku humelela"
-            else -> "Password changed successfully"
-        }
-        showSnackbar(message)
-    }
-
-    private fun showSnackbar(message: String) {
-        view?.let { Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show() }
     }
 
     private fun loadUserData() {
@@ -340,50 +71,237 @@ class SettingsFragment : Fragment() {
 
         dbRef.get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
+                val firstName = snapshot.child("firstName").getValue(String::class.java) ?: ""
+                val lastName = snapshot.child("lastName").getValue(String::class.java) ?: ""
                 val username = snapshot.child("username").getValue(String::class.java) ?: ""
                 val email = snapshot.child("email").getValue(String::class.java) ?: ""
 
+                // Populate editable fields
+                rootView?.findViewById<TextInputEditText>(R.id.firstNameEditText)?.setText(firstName)
+                rootView?.findViewById<TextInputEditText>(R.id.lastNameEditText)?.setText(lastName)
                 rootView?.findViewById<TextInputEditText>(R.id.usernameEditText)?.setText(username)
                 rootView?.findViewById<TextInputEditText>(R.id.emailEditText)?.setText(email)
-                rootView?.findViewById<TextView>(R.id.userName)?.text = username
+
+                // Determine what to display in the profile header
+                val displayName = when {
+                    firstName.isNotEmpty() || lastName.isNotEmpty() -> "$firstName $lastName".trim()
+                    username.isNotEmpty() -> username
+                    else -> "User"
+                }
+
+                // Update profile header
+                rootView?.findViewById<TextView>(R.id.userName)?.text = displayName
                 rootView?.findViewById<TextView>(R.id.userEmail)?.text = email
             } else {
-                val message = when (getPersistedLanguage()) {
-                    "zu" -> "Idatha yomsebenzisi ayitholakalanga"
-                    "tn" -> "Xiphiqo xa mutirhisi a xi kumiwi"
-                    else -> "User data not found"
-                }
-                showSnackbar(message)
+                showSnackbar("User data not found")
             }
         }.addOnFailureListener {
-            val message = when (getPersistedLanguage()) {
-                "zu" -> "Iphutheke ukulayisha idatha yomsebenzisi"
-                "tn" -> "Ku hele xiphiqo xa mutirhisi"
-                else -> "Failed to load user data"
-            }
-            showSnackbar(message)
+            showSnackbar("Failed to load user data")
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1001) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                enableNotifications()
-            } else {
-                val message = when (getPersistedLanguage()) {
-                    "zu" -> "Imvume yezaziso ayinikezwa"
-                    "tn" -> "Xibvumelo xa miyeliso a xi niekiwanga"
-                    else -> "Notification permission denied"
-                }
-                showSnackbar(message)
-                // Reset switch to off if permission denied
-                rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = false
+    private fun updateProfile() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
+
+        val firstName = rootView?.findViewById<TextInputEditText>(R.id.firstNameEditText)?.text.toString().trim()
+        val lastName = rootView?.findViewById<TextInputEditText>(R.id.lastNameEditText)?.text.toString().trim()
+        val username = rootView?.findViewById<TextInputEditText>(R.id.usernameEditText)?.text.toString().trim()
+
+        if (username.isEmpty()) {
+            showSnackbar("Please enter a username")
+            return
+        }
+
+        val updates = mapOf(
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "username" to username
+        )
+
+        dbRef.updateChildren(updates).addOnSuccessListener {
+            // Decide what to show in the header
+            val displayName = when {
+                firstName.isNotEmpty() || lastName.isNotEmpty() -> "$firstName $lastName".trim()
+                username.isNotEmpty() -> username
+                else -> "User"
             }
+
+            rootView?.findViewById<TextView>(R.id.userName)?.text = displayName
+
+            val message = when (getPersistedLanguage()) {
+                "zu" -> "Iphrofayili ibuyekezwe ngempumelelo"
+                "tn" -> "Profayili yi antswuxiwile hi ku humelela"
+                else -> "Profile updated successfully"
+            }
+            showPopup(message)
+        }.addOnFailureListener {
+            val message = when (getPersistedLanguage()) {
+                "zu" -> "Kwehlulekile ukubuyekeza iphrofayili"
+                "tn" -> "Ku tsandzekile ku antswuxa profayili"
+                else -> "Failed to update profile"
+            }
+            showPopup(message)
+        }
+    }
+
+    private fun initLanguageDropdown() {
+        languageDropdown = rootView?.findViewById(R.id.languageDropdown) ?: return
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
+        languageDropdown.setAdapter(adapter)
+
+        val currentLanguage = getPersistedLanguage()
+        val currentPosition = languageCodes.indexOf(currentLanguage)
+        if (currentPosition != -1) {
+            languageDropdown.setText(languageNames[currentPosition], false)
+        }
+
+        languageDropdown.setOnItemClickListener { _, _, position, _ ->
+            val selectedLanguageCode = languageCodes[position]
+            val currentLanguageCode = getPersistedLanguage()
+            if (selectedLanguageCode != currentLanguageCode) {
+                showLanguageChangeConfirmation(selectedLanguageCode)
+            }
+        }
+    }
+
+    private fun showLanguageChangeConfirmation(languageCode: String) {
+        val currentLanguage = getPersistedLanguage()
+        val (message, positiveButton, negativeButton) = when (currentLanguage) {
+            "zu" -> Triple("Uqinisekile ukuthi ufuna ukushintsha ulimi? Uhlelo lizovulwa kabusha.", "Shintsha", "Khansela")
+            "tn" -> Triple("U na xiximi lexi u lava ku cinca ririmi? App yi ta sungula nakambe.", "Cinca", "Kansela")
+            else -> Triple("Are you sure you want to change the language? The app will restart.", "Change", "Cancel")
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.select_language))
+            .setMessage(message)
+            .setPositiveButton(positiveButton) { _, _ ->
+                changeAppLanguage(languageCode)
+            }
+            .setNegativeButton(negativeButton, null)
+            .show()
+    }
+
+    private fun changeAppLanguage(languageCode: String) {
+        sharedPreferences.edit { putString("selected_language", languageCode) }
+
+        val message = when (languageCode) {
+            "zu" -> "Indlela yolimi ishintshiwe"
+            "tn" -> "Ririmi ri cincile hi ku humelela"
+            else -> "Language changed successfully"
+        }
+        showSnackbar(message)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            requireActivity().recreate()
+        }, 1000)
+    }
+
+    private fun getPersistedLanguage(): String {
+        return sharedPreferences.getString("selected_language", "en") ?: "en"
+    }
+
+    private fun setupSwitchListeners() {
+        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)
+            ?.setOnCheckedChangeListener { _, isChecked ->
+                isDarkModeEnabled = isChecked
+                sharedPreferences.edit { putBoolean("darkMode", isChecked) }
+                toggleDarkMode(isChecked)
+                val msg = if (isChecked) "Dark mode enabled" else "Dark mode disabled"
+                showSnackbar(msg)
+            }
+
+        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)
+            ?.setOnCheckedChangeListener { _, isChecked ->
+                areNotificationsEnabled = isChecked
+                sharedPreferences.edit { putBoolean("notificationsEnabled", isChecked) }
+                if (isChecked) enableNotifications() else showSnackbar("Notifications disabled")
+            }
+    }
+
+    private fun toggleDarkMode(isDarkMode: Boolean) {
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode)
+                androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            else
+                androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+        )
+    }
+
+    private fun enableNotifications() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+                return
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL_ID, "App Notifications", NotificationManager.IMPORTANCE_DEFAULT)
+            val notificationManager: NotificationManager =
+                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+        showSnackbar("Notifications enabled")
+    }
+
+    private fun setupClickListeners() {
+        rootView?.findViewById<View>(R.id.signOutButton)?.setOnClickListener { showSignOutConfirmation() }
+        rootView?.findViewById<View>(R.id.updateProfileButton)?.setOnClickListener { updateProfile() }
+        rootView?.findViewById<View>(R.id.changePasswordButton)?.setOnClickListener { changePassword() }
+    }
+
+    private fun showSignOutConfirmation() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Sign Out")
+            .setMessage("Are you sure you want to sign out?")
+            .setPositiveButton("Sign Out") { _, _ -> performSignOut() }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun performSignOut() {
+        FirebaseAuth.getInstance().signOut()
+        showSnackbar("Signed out successfully")
+
+        val intent = android.content.Intent(requireContext(), SignInActivity::class.java)
+        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
+    private fun changePassword() {
+        showPopup("Password changed successfully")
+    }
+
+    private fun loadCurrentSettings() {
+        isDarkModeEnabled = sharedPreferences.getBoolean("darkMode", false)
+        areNotificationsEnabled = sharedPreferences.getBoolean("notificationsEnabled", true)
+        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.isChecked = isDarkModeEnabled
+        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = areNotificationsEnabled
+        toggleDarkMode(isDarkModeEnabled)
+    }
+
+    private fun showSnackbar(message: String) {
+        view?.let { Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show() }
+    }
+
+    private fun showPopup(message: String) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001 && (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            enableNotifications()
+        } else {
+            showSnackbar("Notification permission denied")
+            rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = false
         }
     }
 
