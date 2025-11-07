@@ -26,6 +26,9 @@ class EventAdapter(
     var savedEventIds: List<String> = emptyList()
 ) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
+    // Firebase-safe username (replace . with ,)
+    private val safeUsername = username.replace(".", ",")
+
     class EventViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.eventTitle)
         val date: TextView = view.findViewById(R.id.eventDate)
@@ -46,79 +49,76 @@ class EventAdapter(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event = events[position]
-        val eventId = event.id ?: ""
+        val eventId = event.id ?: return
 
+        val dbRef = FirebaseDatabase.getInstance()
+            .getReference("saved_events")
+            .child(safeUsername)
+
+        // Populate views
         holder.title.text = event.name ?: "Unknown Event"
-
         val dateStr = event.dates.start.localDate
         val timeStr = event.dates.start.localTime
-        val formattedDate = try {
+
+        holder.date.text = try {
             if (!timeStr.isNullOrEmpty()) {
                 val inputFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 val outputFormat = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
-                val dateTime = java.time.LocalDateTime.parse("$dateStr $timeStr", inputFormat)
-                dateTime.format(outputFormat)
+                java.time.LocalDateTime.parse("$dateStr $timeStr", inputFormat).format(outputFormat)
             } else {
                 val inputFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 val outputFormat = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")
-                val date = java.time.LocalDate.parse(dateStr, inputFormat)
-                date.format(outputFormat)
+                java.time.LocalDate.parse(dateStr, inputFormat).format(outputFormat)
             }
-        } catch (e: Exception) { dateStr }
+        } catch (e: Exception) {
+            dateStr
+        }
 
-        holder.date.text = formattedDate
-
-        val venue = (event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()
-        holder.venue.text = venue?.let { "${it.name}, ${it.city.name}" } ?: "Unknown Venue"
+        val venueObj = (event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()
+        holder.venue.text = venueObj?.let { "${it.name}, ${it.city.name}" } ?: "Unknown Venue"
 
         val imageUrl = event.images.firstOrNull()?.url
         if (!imageUrl.isNullOrEmpty()) {
-            Glide.with(holder.itemView.context)
-                .load(imageUrl)
-                .into(holder.image)
+            Glide.with(holder.itemView.context).load(imageUrl).into(holder.image)
         }
 
-        // Set buy button
+        // Buy button
         if (!event.url.isNullOrEmpty()) {
             holder.buyButton.visibility = View.VISIBLE
             holder.buyButton.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(event.url))
                 holder.itemView.context.startActivity(intent)
             }
-        } else {
-            holder.buyButton.visibility = View.GONE
-        }
+        } else holder.buyButton.visibility = View.GONE
 
-        val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(username)
-
-        // Update button text based on savedEventIds
+        // Set save button text
         holder.saveButton.text = if (savedEventIds.contains(eventId)) "Unsave" else "Save"
 
+        // Handle save/unsave logic
         holder.saveButton.setOnClickListener {
             if (savedEventIds.contains(eventId)) {
-                // Remove event
+                // Remove event from Firebase, but keep it in the list
                 dbRef.child(eventId).removeValue().addOnSuccessListener {
                     savedEventIds = savedEventIds - eventId
                     holder.saveButton.text = "Save"
                     showEventStatusDialog(holder.itemView.context, false)
                 }.addOnFailureListener { it.printStackTrace() }
             } else {
-                // Add event
+                // Add event to Firebase
                 val salesStart = event.sales?.public?.startDateTime ?: ""
                 val salesEnd = event.sales?.public?.endDateTime ?: ""
-
                 val eventData = mapOf(
                     "id" to event.id,
                     "name" to (event.name ?: "Unknown Event"),
                     "date_raw" to dateStr,
                     "time_raw" to timeStr,
-                    "date" to formattedDate,
-                    "venue" to (venue?.name ?: "Unknown Venue"),
-                    "city" to (venue?.city?.name ?: "Unknown City"),
+                    "date" to holder.date.text.toString(),
+                    "venue" to (venueObj?.name ?: "Unknown Venue"),
+                    "city" to (venueObj?.city?.name ?: "Unknown City"),
                     "imageUrl" to (event.images.firstOrNull()?.url ?: ""),
                     "buyUrl" to (event.url ?: ""),
-                    "latitude" to (venue?.location?.latitude ?: ""),
-                    "longitude" to (venue?.location?.longitude ?: ""),
+                    "latitude" to (venueObj?.location?.latitude ?: ""),
+                    "longitude" to (venueObj?.location?.longitude ?: ""),
                     "salesStart" to salesStart,
                     "salesEnd" to salesEnd
                 )
@@ -138,9 +138,7 @@ class EventAdapter(
     }
 
     private fun showEventStatusDialog(context: android.content.Context, saved: Boolean) {
-        val dialogView = LayoutInflater.from(context)
-            .inflate(R.layout.dialog_event_status, null)
-
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_event_status, null)
         val imageView: ImageView = dialogView.findViewById(R.id.statusImage)
         val title: TextView = dialogView.findViewById(R.id.statusTitle)
         val message: TextView = dialogView.findViewById(R.id.statusMessage)

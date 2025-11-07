@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.rythmscouts.ui.home.HomeFragment"
-        android:label="@string/title_home"
+        android:name="com.example.rythmscouts.HomeFragment"
+        android:label= "asdas"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_explore"
-        android:name="com.example.rythmscouts.ui.dashboard.DashboardFragment"
-        android:label="@string/title_explore"
+        android:name="com.example.rythmscouts.ExploreFragment"
+        android:label="@string/nav_explore"
         tools:layout="@layout/fragment_explore" />
 
     <fragment
         android:id="@+id/navigation_my_events"
-        android:name="com.example.rythmscouts.ui.notifications.NotificationsFragment"
-        android:label="@string/title_my_events"
+        android:name="com.example.rythmscouts.MyEventsFragment"
+        android:label="@string/nav_my_events"
         tools:layout="@layout/fragment_my_events" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.example.rythmscouts.ui.notifications.NotificationsFragment"
-        android:label="@string/title_settings"
+        android:name="com.example.rythmscouts.SettingsFragment"
+        android:label="@string/nav_settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>

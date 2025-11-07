@@ -79,20 +79,20 @@ class MainActivity : BaseActivity() {
     private fun updateHeaderForSelectedPage(menuItemId: Int) {
         when (menuItemId) {
             R.id.navigation_home -> {
-                tvTitle.text = "Rhythm Scout"
-                tvTitleText.text = "Discover amazing music events near you"
+                tvTitle.text = getString(R.string.title_home)
+                tvTitleText.text = getString(R.string.subtitle_home)
             }
             R.id.navigation_explore -> {
-                tvTitle.text = "Explore Events"
-                tvTitleText.text = "Find events by genre, date, or location"
+                tvTitle.text = getString(R.string.title_explore)
+                tvTitleText.text = getString(R.string.subtitle_explore)
             }
             R.id.navigation_my_events -> {
-                tvTitle.text = "My Events"
-                tvTitleText.text = "Your saved events"
+                tvTitle.text = getString(R.string.title_my_events)
+                tvTitleText.text = getString(R.string.subtitle_my_events)
             }
             R.id.navigation_settings -> {
-                tvTitle.text = "Settings"
-                tvTitleText.text = "Manage your account and preferences"
+                tvTitle.text = getString(R.string.title_settings)
+                tvTitleText.text = getString(R.string.subtitle_settings)
             }
         }
     }

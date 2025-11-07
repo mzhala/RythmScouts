@@ -5,6 +5,18 @@
     <string name="title_explore">Hlola</string>
     <string name="title_my_events">Imicimbi Yami</string>
     <string name="title_settings">Izilungiselelo</string>
+
+    <string name="nav_home">Ikhaya</string>
+    <string name="nav_explore">Hlola</string>
+    <string name="nav_my_events">Imicimbi Yami</string>
+    <string name="nav_settings">Izilungiselelo</string>
+
+
+    <string name="subtitle_home">Thola imicimbi yomculo emangalisayo eduze kwakho</string>
+    <string name="subtitle_explore">Thola imicimbi ngeDolobha</string>
+    <string name="subtitle_my_events">Imicimbi yakho egciniwe</string>
+    <string name="subtitle_settings">Phatha i-akhawunti yakho nezintandokazi</string>
+
     <string name="hello_blank_fragment">Sawubona isiqephu esingenalutho</string>
     <string name="buy_tickets">thenga_amathikithi</string>
     <string name="settings_title">Izilungiselelo</string>
