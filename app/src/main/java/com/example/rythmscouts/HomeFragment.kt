@@ -100,6 +100,7 @@ class HomeFragment : BaseFragment() {
                     }
 
                     val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child("testing-user")
+                    dbRef.keepSynced(true)
                     dbRef.get().addOnSuccessListener { snapshot ->
                         val savedEventIds = snapshot.children.mapNotNull { it.key }
                         todayAdapter.savedEventIds = savedEventIds

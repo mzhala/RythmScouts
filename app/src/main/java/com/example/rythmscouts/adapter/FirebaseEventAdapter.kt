@@ -16,6 +16,7 @@ import com.google.firebase.database.FirebaseDatabase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.appcompat.app.AlertDialog
+import com.example.rythmscouts.FirebaseHelper
 
 data class FirebaseEvent(
     val id: String? = null,
@@ -64,7 +65,9 @@ class FirebaseEventAdapter(
         // Set button text based on savedEventIds
         holder.saveButton.text = if (savedEventIds.contains(eventId)) "Unsave" else "Save"
 
-        val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(safeUsername)
+        // val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(safeUsername)
+        val dbRef = FirebaseHelper.savedEventsRef(safeUsername)
+        // dbRef.keepSynced(true)
 
         holder.saveButton.setOnClickListener {
             if (savedEventIds.contains(eventId)) {

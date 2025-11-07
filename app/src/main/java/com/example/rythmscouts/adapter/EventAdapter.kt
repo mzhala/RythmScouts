@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.rythmscouts.FirebaseHelper
 import com.example.rythmscouts.R
 import com.example.rythmscouts.network.Event
 import com.example.rythmscouts.network.EventVenueEmbedded
@@ -51,9 +52,9 @@ class EventAdapter(
         val event = events[position]
         val eventId = event.id ?: return
 
-        val dbRef = FirebaseDatabase.getInstance()
-            .getReference("saved_events")
-            .child(safeUsername)
+        //val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(safeUsername)
+        val dbRef = FirebaseHelper.savedEventsRef(safeUsername)
+        //dbRef.keepSynced(true)
 
         // Populate views
         holder.title.text = event.name ?: "Unknown Event"

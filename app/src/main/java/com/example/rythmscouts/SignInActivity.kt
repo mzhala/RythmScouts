@@ -51,7 +51,8 @@ class SignInActivity : BaseActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance().getReference("users")
+        //database = FirebaseDatabase.getInstance().getReference("users")
+        database = FirebaseHelper.usersRef
 
         // Configure Google Sign In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
