@@ -1,18 +1,28 @@
 package com.example.rythmscouts
 
+import com.example.rythmscouts.network.Event
+import com.example.rythmscouts.adapter.FirebaseEvent
+import com.example.rythmscouts.models.NotificationItem
+import com.example.rythmscouts.adapter.NotificationsAdapter
+
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainActivity : BaseActivity() {
 
@@ -25,8 +35,10 @@ class MainActivity : BaseActivity() {
     private lateinit var ivProfilePicture: ImageView
     private lateinit var tvTitle: TextView
     private lateinit var tvTitleText: TextView
+    private lateinit var ivNotification: ImageView
     private var userEmail: String? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,18 +46,15 @@ class MainActivity : BaseActivity() {
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
-
-        // Retrieve the email passed from SignInActivity
         userEmail = intent.getStringExtra("USER_EMAIL")
 
-        // Initialize header views
         ivProfilePicture = findViewById(R.id.profile_picture)
         tvTitle = findViewById(R.id.title)
         tvTitleText = findViewById(R.id.title_text)
+        ivNotification = findViewById(R.id.nortification)
 
         val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
 
-        // Set default fragment
         replaceFragment(homeFragment)
         bottomNavigation.menu.findItem(R.id.navigation_home).isChecked = true
         updateHeaderForSelectedPage(R.id.navigation_home)
@@ -61,12 +70,14 @@ class MainActivity : BaseActivity() {
             true
         }
 
-        // Optional: fetch user data from Firebase if needed
         fetchUserDetails()
+
+        ivNotification.setOnClickListener {
+            showNotificationsPopup()
+        }
     }
 
     private fun replaceFragment(fragment: Fragment) {
-        // Pass user email to every fragment
         val bundle = Bundle()
         bundle.putString("USER_EMAIL", userEmail)
         fragment.arguments = bundle
@@ -101,19 +112,64 @@ class MainActivity : BaseActivity() {
         val userId = auth.currentUser?.uid ?: return
         val userRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
 
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val username = snapshot.child("username").getValue(String::class.java)
-                val email = snapshot.child("email").getValue(String::class.java)
-                // You can use these values to update your UI if needed
+        userRef.get().addOnSuccessListener { snapshot ->
+            val username = snapshot.child("username").getValue(String::class.java)
+            val email = snapshot.child("email").getValue(String::class.java)
+        }
+    }
+
+    fun getUserEmail(): String? = userEmail
+
+    /** Show notifications popup safely */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showNotificationsPopup() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.popup_notifications, null)
+        bottomSheetDialog.setContentView(view)
+
+        val recyclerView = view.findViewById<RecyclerView>(R.id.notificationsRecyclerView)
+        val emptyMessage = view.findViewById<TextView>(R.id.emptyMessage)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
+        val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(safeEmail)
+
+        dbRef.get().addOnSuccessListener { snapshot ->
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val today = LocalDate.now()
+
+            val notifications = snapshot.children.mapNotNull { it.getValue(FirebaseEvent::class.java) }
+                .filter { event ->
+                    event.date_raw?.let { dateStr ->
+                        val eventDate = LocalDate.parse(dateStr, formatter)
+                        !eventDate.isBefore(today)
+                    } ?: false
+                }
+                .sortedWith(compareBy({ it.date_raw }, { it.time_raw })) // optional sort by time
+                .map { event ->
+                    NotificationItem(
+                        title = event.name ?: "Unknown Event",
+                        subtitle = "${event.date_raw ?: ""} ${event.time_raw ?: ""} @ ${event.venue ?: ""}"
+                    )
+                }
+
+            if (notifications.isNotEmpty()) {
+                recyclerView.adapter = NotificationsAdapter(notifications)
+                recyclerView.visibility = View.VISIBLE
+                emptyMessage.visibility = View.GONE
+            } else {
+                recyclerView.visibility = View.GONE
+                emptyMessage.visibility = View.VISIBLE
+                emptyMessage.text = "Add events to get notifications!"
             }
+        }.addOnFailureListener {
+            recyclerView.visibility = View.GONE
+            emptyMessage.visibility = View.VISIBLE
+            emptyMessage.text = "Add events to get notifications!"
+        }
 
-            override fun onCancelled(error: DatabaseError) {}
-        })
+        bottomSheetDialog.show()
     }
 
-    // Public getter so fragments can access the user email if needed
-    fun getUserEmail(): String? {
-        return userEmail
-    }
+
 }

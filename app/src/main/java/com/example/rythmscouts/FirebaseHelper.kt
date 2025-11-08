@@ -5,8 +5,7 @@ import com.google.firebase.database.FirebaseDatabase
 
 object FirebaseHelper {
     private val database = FirebaseDatabase.getInstance().apply {
-        // Enable persistence only once globally
-        setPersistenceEnabled(true)
+        setPersistenceEnabled(true) // globally enable offline persistence
     }
 
     val usersRef: DatabaseReference = database.getReference("users").apply {
@@ -17,10 +16,16 @@ object FirebaseHelper {
         keepSynced(true)
     }
 
-    // Function to get a reference to saved events for a specific user
+    // Keep track of which user refs are already synced
+    private val syncedUsers = mutableSetOf<String>()
+
     fun savedEventsRef(username: String): DatabaseReference {
-        val ref = database.getReference("saved_events").child(username)
-        ref.keepSynced(true)
+        val safeUsername = username.replace(".", ",")
+        val ref = database.getReference("saved_events").child(safeUsername)
+        if (syncedUsers.add(safeUsername)) {
+            ref.keepSynced(true) // only call once per user
+        }
         return ref
     }
 }
+
