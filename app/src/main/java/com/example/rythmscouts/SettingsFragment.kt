@@ -13,9 +13,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
@@ -44,6 +42,8 @@ class SettingsFragment : Fragment() {
 
     private val CHANNEL_ID = "notifications_channel"
 
+    private lateinit var profileImageView: ImageView
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,13 +58,21 @@ class SettingsFragment : Fragment() {
 
         sharedPreferences = requireContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
 
+        profileImageView = rootView?.findViewById(R.id.profileImage)!!
+
+        rootView?.findViewById<Button>(R.id.changePhotoButton)?.setOnClickListener {
+            openProfilePicker()
+        }
+
         initLanguageDropdown()
         setupSwitchListeners()
         setupClickListeners()
         loadCurrentSettings()
         loadUserData()
+        loadUserProfileImage()
     }
 
+    // --- Load user data ---
     private fun loadUserData() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
@@ -76,20 +84,17 @@ class SettingsFragment : Fragment() {
                 val username = snapshot.child("username").getValue(String::class.java) ?: ""
                 val email = snapshot.child("email").getValue(String::class.java) ?: ""
 
-                // Populate editable fields
                 rootView?.findViewById<TextInputEditText>(R.id.firstNameEditText)?.setText(firstName)
                 rootView?.findViewById<TextInputEditText>(R.id.lastNameEditText)?.setText(lastName)
                 rootView?.findViewById<TextInputEditText>(R.id.usernameEditText)?.setText(username)
                 rootView?.findViewById<TextInputEditText>(R.id.emailEditText)?.setText(email)
 
-                // Determine what to display in the profile header
                 val displayName = when {
                     firstName.isNotEmpty() || lastName.isNotEmpty() -> "$firstName $lastName".trim()
                     username.isNotEmpty() -> username
                     else -> "User"
                 }
 
-                // Update profile header
                 rootView?.findViewById<TextView>(R.id.userName)?.text = displayName
                 rootView?.findViewById<TextView>(R.id.userEmail)?.text = email
             } else {
@@ -120,7 +125,6 @@ class SettingsFragment : Fragment() {
         )
 
         dbRef.updateChildren(updates).addOnSuccessListener {
-            // Decide what to show in the header
             val displayName = when {
                 firstName.isNotEmpty() || lastName.isNotEmpty() -> "$firstName $lastName".trim()
                 username.isNotEmpty() -> username
@@ -145,6 +149,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    // --- Language dropdown ---
     private fun initLanguageDropdown() {
         languageDropdown = rootView?.findViewById(R.id.languageDropdown) ?: return
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
@@ -176,16 +181,13 @@ class SettingsFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.select_language))
             .setMessage(message)
-            .setPositiveButton(positiveButton) { _, _ ->
-                changeAppLanguage(languageCode)
-            }
+            .setPositiveButton(positiveButton) { _, _ -> changeAppLanguage(languageCode) }
             .setNegativeButton(negativeButton, null)
             .show()
     }
 
     private fun changeAppLanguage(languageCode: String) {
         sharedPreferences.edit { putString("selected_language", languageCode) }
-
         val message = when (languageCode) {
             "zu" -> "Indlela yolimi ishintshiwe"
             "tn" -> "Ririmi ri cincile hi ku humelela"
@@ -202,14 +204,14 @@ class SettingsFragment : Fragment() {
         return sharedPreferences.getString("selected_language", "en") ?: "en"
     }
 
+    // --- Dark mode and notifications ---
     private fun setupSwitchListeners() {
         rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)
             ?.setOnCheckedChangeListener { _, isChecked ->
                 isDarkModeEnabled = isChecked
                 sharedPreferences.edit { putBoolean("darkMode", isChecked) }
                 toggleDarkMode(isChecked)
-                val msg = if (isChecked) "Dark mode enabled" else "Dark mode disabled"
-                showSnackbar(msg)
+                showSnackbar(if (isChecked) "Dark mode enabled" else "Dark mode disabled")
             }
 
         rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)
@@ -222,10 +224,8 @@ class SettingsFragment : Fragment() {
 
     private fun toggleDarkMode(isDarkMode: Boolean) {
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode)
-                androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-            else
-                androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+            if (isDarkMode) androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            else androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
         )
     }
 
@@ -248,6 +248,7 @@ class SettingsFragment : Fragment() {
         showSnackbar("Notifications enabled")
     }
 
+    // --- Click listeners ---
     private fun setupClickListeners() {
         rootView?.findViewById<View>(R.id.signOutButton)?.setOnClickListener { showSignOutConfirmation() }
         rootView?.findViewById<View>(R.id.updateProfileButton)?.setOnClickListener { updateProfile() }
@@ -264,23 +265,16 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performSignOut() {
-        // Sign out from Firebase
         FirebaseAuth.getInstance().signOut()
-
-        // Clear locally cached user info
         requireContext().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
-            .edit()
-            .clear()
-            .apply()
+            .edit().clear().apply()
 
         showSnackbar("Signed out successfully")
 
-        // Navigate to SignInActivity and clear back stack
         val intent = android.content.Intent(requireContext(), SignInActivity::class.java)
         intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }
-
 
     private fun changePassword() {
         showPopup("Password changed successfully")
@@ -303,6 +297,67 @@ class SettingsFragment : Fragment() {
             .setMessage(message)
             .setPositiveButton("OK", null)
             .show()
+    }
+
+    // --- Avatar grid picker ---
+    private fun openProfilePicker() {
+        val profileImages = arrayOf(
+            R.drawable.profile_1,
+            R.drawable.profile_2,
+            R.drawable.profile_3,
+            R.drawable.profile_4,
+            R.drawable.profile_5,
+            R.drawable.profile_6
+        )
+
+        val gridView = GridView(requireContext()).apply {
+            numColumns = 3
+            adapter = object : BaseAdapter() {
+                override fun getCount() = profileImages.size
+                override fun getItem(position: Int) = profileImages[position]
+                override fun getItemId(position: Int) = position.toLong()
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+                    val imageView = convertView as? ImageView ?: LayoutInflater.from(context)
+                        .inflate(R.layout.item_avatar, parent, false) as ImageView
+                    imageView.setImageResource(profileImages[position])
+                    return imageView
+                }
+            }
+            setPadding(16,16,16,16)
+            horizontalSpacing = 16
+            verticalSpacing = 16
+        }
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Select Profile Picture")
+            .setView(gridView)
+            .setNegativeButton("Cancel", null)
+            .create()
+        dialog.show()
+
+        gridView.setOnItemClickListener { _, _, position, _ ->
+            val selectedImageRes = profileImages[position]
+            profileImageView.setImageResource(selectedImageRes)
+
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnItemClickListener
+            FirebaseDatabase.getInstance().getReference("users").child(userId)
+                .child("profileImageResId")
+                .setValue(selectedImageRes)
+
+            dialog.dismiss()
+        }
+    }
+
+    private fun loadUserProfileImage() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        FirebaseDatabase.getInstance().getReference("users").child(userId)
+            .child("profileImageResId")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val resId = snapshot.getValue(Int::class.java)
+                if (resId != null) profileImageView.setImageResource(resId)
+                else profileImageView.setImageResource(R.drawable.ic_default_profile_picture)
+            }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
