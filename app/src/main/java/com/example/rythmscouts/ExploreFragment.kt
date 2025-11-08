@@ -9,13 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.Spinner
-import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rythmscouts.adapter.EventAdapter
+import com.example.rythmscouts.network.Event
+import com.example.rythmscouts.network.EventVenueEmbedded
 import com.example.rythmscouts.network.RetrofitClient
 import com.example.rythmscouts.network.TicketmasterApi
 import com.example.rythmscouts.network.TicketmasterResponse
@@ -44,7 +46,6 @@ class ExploreFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Get the user email passed from MainActivity
         userEmail = arguments?.getString("USER_EMAIL")
     }
 
@@ -61,9 +62,7 @@ class ExploreFragment : BaseFragment() {
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Use safe email or fallback to placeholder if missing
         val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
-
         adapter = EventAdapter(emptyList(), username = safeEmail)
         recyclerView.adapter = adapter
 
@@ -122,22 +121,44 @@ class ExploreFragment : BaseFragment() {
                     val filteredEvents = events.filter { event ->
                         val matchesQuery = query.isBlank() || event.name.contains(query, ignoreCase = true)
                         val matchesCity = city?.let { selectedCity ->
-                            (event._embedded as? com.example.rythmscouts.network.EventVenueEmbedded)
+                            (event._embedded as? EventVenueEmbedded)
                                 ?.venues?.any { it.city.name.equals(selectedCity, ignoreCase = true) } ?: false
                         } ?: true
                         matchesQuery && matchesCity
                     }
 
-                    // Firebase reference based on user email
                     val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
-                    val dbRef = FirebaseDatabase.getInstance()
+
+                    // Saved events reference
+                    val savedRef = FirebaseDatabase.getInstance()
                         .getReference("saved_events")
                         .child(safeEmail)
 
-                    dbRef.get().addOnSuccessListener { snapshot ->
+                    savedRef.get().addOnSuccessListener { snapshot ->
                         val savedEventIds = snapshot.children.mapNotNull { it.key }
                         adapter.savedEventIds = savedEventIds
-                        adapter.updateData(filteredEvents)
+
+                        // Update adapter with API results, fallback to cache if empty
+                        val cacheRef = FirebaseDatabase.getInstance()
+                            .getReference("cached_events")
+                            .child(safeEmail)
+
+                        cacheRef.setValue(filteredEvents)
+                            .addOnSuccessListener {
+                                Log.d("ExploreFragment", "Events cached locally for offline use")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("ExploreFragment", "Failed to cache events: ${e.message}")
+                            }
+
+                        // Fetch cached events if API returns empty
+                        cacheRef.get().addOnSuccessListener { cacheSnapshot ->
+                            val cachedEvents = cacheSnapshot.children.mapNotNull {
+                                it.getValue(Event::class.java)
+                            }
+                            val finalList = if (filteredEvents.isNotEmpty()) filteredEvents else cachedEvents
+                            adapter.updateData(finalList)
+                        }
                     }
 
                 } else {
@@ -148,6 +169,18 @@ class ExploreFragment : BaseFragment() {
             override fun onFailure(call: Call<TicketmasterResponse>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 t.printStackTrace()
+
+                val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
+                val cacheRef = FirebaseDatabase.getInstance()
+                    .getReference("cached_events")
+                    .child(safeEmail)
+
+                cacheRef.get().addOnSuccessListener { snapshot ->
+                    if (snapshot.exists()) {
+                        val cachedEvents = snapshot.children.mapNotNull { it.getValue(Event::class.java) }
+                        adapter.updateData(cachedEvents)
+                    }
+                }
             }
         })
     }

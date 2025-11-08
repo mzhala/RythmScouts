@@ -35,7 +35,8 @@
                     android:layout_width="35dp"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_default_profile_picture"
-                    android:id="@+id/profile_picture"/>
+                    android:id="@+id/profile_picture"
+                    android:visibility="gone"/>
 
                 <LinearLayout
                     android:layout_marginStart="10dp"

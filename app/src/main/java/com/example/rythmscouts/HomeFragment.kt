@@ -9,9 +9,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.rythmscouts.adapter.EventAdapter
+import com.example.rythmscouts.network.Event
 import com.example.rythmscouts.network.RetrofitClient
 import com.example.rythmscouts.network.TicketmasterApi
 import com.example.rythmscouts.network.TicketmasterResponse
@@ -37,6 +37,7 @@ class HomeFragment : BaseFragment() {
     private lateinit var endingSoonAdapter: EventAdapter
 
     private val apiKey = "1A1i0hOsTyaaIstcAYpvNAmKjd84Kq3o"
+    private val userEmail = "testing-user" // replace with dynamic email if needed
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -53,12 +54,8 @@ class HomeFragment : BaseFragment() {
         todayLabel = view.findViewById(R.id.todayLabel)
         endingSoonLabel = view.findViewById(R.id.endingSoonLabel)
 
-        todayAdapter = EventAdapter(emptyList(), username = "testing-user", isHomePage = true)
-        endingSoonAdapter = EventAdapter(emptyList(), username = "testing-user", isHomePage = true)
-        todayViewPager.adapter = todayAdapter
-        endingSoonViewPager.adapter = endingSoonAdapter
-
-
+        todayAdapter = EventAdapter(emptyList(), username = userEmail, isHomePage = true)
+        endingSoonAdapter = EventAdapter(emptyList(), username = userEmail, isHomePage = true)
         todayViewPager.adapter = todayAdapter
         endingSoonViewPager.adapter = endingSoonAdapter
 
@@ -78,6 +75,8 @@ class HomeFragment : BaseFragment() {
             override fun onResponse(call: Call<TicketmasterResponse>, response: Response<TicketmasterResponse>) {
                 progressBar.visibility = View.GONE
 
+                val safeEmail = userEmail.replace(".", ",")
+
                 if (response.isSuccessful) {
                     val allEvents = response.body()?._embedded?.events ?: emptyList()
                     val today = LocalDate.now()
@@ -92,33 +91,55 @@ class HomeFragment : BaseFragment() {
                         .take(5)
 
                     val endingSoonEvents = uniqueEvents
-                        .filter { it.dates.start.localDate > today.format(formatter) }
+                        .filter { LocalDate.parse(it.dates.start.localDate, formatter) > today }
                         .take(2)
 
                     val filteredToday = todayOrSoonEvents.filterNot { top ->
                         endingSoonEvents.any { bottom -> bottom.name == top.name }
                     }
 
-                    val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child("testing-user")
-                    dbRef.keepSynced(true)
-                    dbRef.get().addOnSuccessListener { snapshot ->
-                        val savedEventIds = snapshot.children.mapNotNull { it.key }
-                        todayAdapter.savedEventIds = savedEventIds
-                        endingSoonAdapter.savedEventIds = savedEventIds
+                    // Save to Firebase cache
+                    val cacheRef = FirebaseDatabase.getInstance()
+                        .getReference("cached_events")
+                        .child(safeEmail)
 
-                        todayAdapter.updateData(filteredToday)
-                        endingSoonAdapter.updateData(endingSoonEvents)
-                    }
+                    cacheRef.setValue(uniqueEvents)
+                        .addOnSuccessListener {
+                            // Update adapter with fresh data
+                            todayAdapter.updateData(filteredToday)
+                            endingSoonAdapter.updateData(endingSoonEvents)
+                        }
+                        .addOnFailureListener { e ->
+                            // fallback even if cache fails
+                            todayAdapter.updateData(filteredToday)
+                            endingSoonAdapter.updateData(endingSoonEvents)
+                        }
 
-                    todayLabel.text = if (todayOrSoonEvents.isNotEmpty())
-                        "Happening Today" else "Upcoming Events"
+                    todayLabel.text = if (todayOrSoonEvents.isNotEmpty()) "Happening Today" else "Upcoming Events"
+
+                } else {
+                    // fallback to cache if API fails
+                    loadCachedEvents(safeEmail)
                 }
             }
 
             override fun onFailure(call: Call<TicketmasterResponse>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 t.printStackTrace()
+                val safeEmail = userEmail.replace(".", ",")
+                loadCachedEvents(safeEmail)
             }
         })
+    }
+
+    private fun loadCachedEvents(safeEmail: String) {
+        val cacheRef = FirebaseDatabase.getInstance().getReference("cached_events").child(safeEmail)
+        cacheRef.get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                val cachedEvents = snapshot.children.mapNotNull { it.getValue(Event::class.java) }
+                todayAdapter.updateData(cachedEvents.take(5)) // show top 5 as today/soon
+                endingSoonAdapter.updateData(cachedEvents.takeLast(2)) // last 2 as ending soon
+            }
+        }
     }
 }
