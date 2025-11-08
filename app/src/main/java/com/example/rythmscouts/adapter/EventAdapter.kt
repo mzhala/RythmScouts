@@ -105,19 +105,14 @@ class EventAdapter(
             val eventRef = dbRef.child(eventId)
 
             if (wasSaved) {
-                // Remove event from Firebase (offline-safe)
+                // Remove only from Firebase, keep it in the list
                 eventRef.removeValue()
                 savedEventIds = savedEventIds - eventId
                 holder.saveButton.text = "Save"
                 showEventStatusDialog(holder.itemView.context, false, offline = !isOnline(holder.itemView.context))
 
-                // Remove from RecyclerView immediately
-                val pos = holder.adapterPosition
-                if (pos != RecyclerView.NO_POSITION) {
-                    events = events.toMutableList().apply { removeAt(pos) }
-                    notifyItemRemoved(pos)
-                }
-            } else {
+
+        } else {
                 // Add event to Firebase (offline-safe)
                 val salesStart = event.sales?.public?.startDateTime ?: ""
                 val salesEnd = event.sales?.public?.endDateTime ?: ""
