@@ -6,6 +6,7 @@ import com.example.rythmscouts.models.NotificationItem
 import com.example.rythmscouts.adapter.NotificationsAdapter
 
 import android.annotation.SuppressLint
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -23,6 +24,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import android.widget.LinearLayout
+import java.time.temporal.ChronoUnit
 
 class MainActivity : BaseActivity() {
 
@@ -127,9 +130,9 @@ class MainActivity : BaseActivity() {
         val view = layoutInflater.inflate(R.layout.popup_notifications, null)
         bottomSheetDialog.setContentView(view)
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.notificationsRecyclerView)
+        val container = view.findViewById<LinearLayout>(R.id.notificationsContainer)
         val emptyMessage = view.findViewById<TextView>(R.id.emptyMessage)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        container.removeAllViews()
 
         val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
         val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(safeEmail)
@@ -138,38 +141,70 @@ class MainActivity : BaseActivity() {
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val today = LocalDate.now()
 
-            val notifications = snapshot.children.mapNotNull { it.getValue(FirebaseEvent::class.java) }
-                .filter { event ->
-                    event.date_raw?.let { dateStr ->
-                        val eventDate = LocalDate.parse(dateStr, formatter)
-                        !eventDate.isBefore(today)
-                    } ?: false
-                }
-                .sortedWith(compareBy({ it.date_raw }, { it.time_raw })) // optional sort by time
-                .map { event ->
-                    NotificationItem(
-                        title = event.name ?: "Unknown Event",
-                        subtitle = "${event.date_raw ?: ""} ${event.time_raw ?: ""} @ ${event.venue ?: ""}"
-                    )
-                }
+            // Get events from Firebase
+            val events = snapshot.children.mapNotNull { it.getValue(FirebaseEvent::class.java) }
+                .filter { !it.date_raw.isNullOrEmpty() }
 
-            if (notifications.isNotEmpty()) {
-                recyclerView.adapter = NotificationsAdapter(notifications)
-                recyclerView.visibility = View.VISIBLE
-                emptyMessage.visibility = View.GONE
-            } else {
-                recyclerView.visibility = View.GONE
-                emptyMessage.visibility = View.VISIBLE
+            if (events.isEmpty()) {
+                container.visibility = View.GONE
                 emptyMessage.text = "Add events to get notifications!"
+                emptyMessage.visibility = View.VISIBLE
+                bottomSheetDialog.show()
+                return@addOnSuccessListener
             }
-        }.addOnFailureListener {
-            recyclerView.visibility = View.GONE
-            emptyMessage.visibility = View.VISIBLE
-            emptyMessage.text = "Add events to get notifications!"
-        }
 
-        bottomSheetDialog.show()
+            // Group events by time frame
+            val grouped = events.groupBy { event ->
+                val eventDate = LocalDate.parse(event.date_raw, formatter)
+                val weeksDiff = ChronoUnit.WEEKS.between(today, eventDate)
+                val monthsDiff = ChronoUnit.MONTHS.between(today, eventDate)
+
+                when {
+                    eventDate.isBefore(today) -> "Past"
+                    weeksDiff < 1 -> "This Week"
+                    monthsDiff < 1 -> "Next Month"
+                    monthsDiff < 4 -> "In Few Months"
+                    else -> "Later"
+                }
+            }
+
+            // Sort keys chronologically
+            val sortedKeys = listOf("This Week", "Next Month", "In Few Months", "Later", "Past")
+            sortedKeys.forEach { key ->
+                grouped[key]?.let { eventsForTimeFrame ->
+                    // Add header
+                    val header = TextView(this).apply {
+                        text = key
+                        setTypeface(null, Typeface.BOLD)
+                        setPadding(16, 16, 16, 8)
+                    }
+                    container.addView(header)
+
+                    // Add each event
+                    eventsForTimeFrame.forEach { event ->
+                        val itemView = layoutInflater.inflate(R.layout.item_notification, container, false)
+                        val titleView = itemView.findViewById<TextView>(R.id.notificationTitle)
+                        val subtitleView = itemView.findViewById<TextView>(R.id.notificationSubtitle)
+
+                        titleView.text = event.name
+                        subtitleView.text = "${event.date_raw} ${event.time_raw ?: ""} @ ${event.venue ?: ""}"
+
+                        container.addView(itemView)
+                    }
+                }
+            }
+
+            container.visibility = View.VISIBLE
+            emptyMessage.visibility = View.GONE
+            bottomSheetDialog.show()
+        }.addOnFailureListener {
+            container.visibility = View.GONE
+            emptyMessage.text = "Failed to load notifications."
+            emptyMessage.visibility = View.VISIBLE
+            bottomSheetDialog.show()
+        }
     }
+
 
 
 }

@@ -3,20 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="4dp">
 
     <TextView
         android:id="@+id/notificationTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Event Name"
-        android:textStyle="bold"/>
+        android:text="Event Title"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@android:color/black" />
 
     <TextView
         android:id="@+id/notificationSubtitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Event details"
+        android:text="Event Date and Venue"
         android:textSize="14sp"
-        android:textColor="#555"/>
+        android:textColor="@android:color/darker_gray" />
 </LinearLayout>

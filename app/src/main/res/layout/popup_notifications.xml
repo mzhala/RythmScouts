@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/notificationsScroll"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/popup_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Notifications"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/notificationsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"/>
-
-    <TextView
-        android:id="@+id/emptyMessage"
+    <LinearLayout
+        android:id="@+id/notificationsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add events to get notifications!"
-        android:textSize="16sp"
-        android:textAlignment="center"
-        android:visibility="gone"
-        android:paddingTop="20dp"/>
-</LinearLayout>
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Empty message if no notifications -->
+        <TextView
+            android:id="@+id/emptyMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add events to get notifications!"
+            android:gravity="center"
+            android:textColor="@android:color/darker_gray"
+            android:visibility="gone"
+            android:padding="24dp"
+            android:textSize="16sp" />
+    </LinearLayout>
+</ScrollView>
