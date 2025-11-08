@@ -19,7 +19,7 @@ object FirebaseHelper {
 
     // Function to get a reference to saved events for a specific user
     fun savedEventsRef(username: String): DatabaseReference {
-        val ref = database.getReference("savedEvents").child(username)
+        val ref = database.getReference("saved_events").child(username)
         ref.keepSynced(true)
         return ref
     }

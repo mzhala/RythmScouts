@@ -11,33 +11,8 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <!-- App Landing Title / Tagline -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp">
-
-            <TextView
-                android:id="@+id/homeTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/discover_events"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
-
-            <TextView
-                android:id="@+id/homeTagline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/never_miss_the_events_you_love"
-                android:textSize="14sp"
-                android:textColor="?attr/colorSecondary"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <!-- Section 1: Happening Today / Soon -->
         <LinearLayout
@@ -88,7 +63,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+
             android:layout_marginBottom="24dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="70dp"/>
 
         <!-- Section 2: Tickets Ending Soon -->
         <LinearLayout
