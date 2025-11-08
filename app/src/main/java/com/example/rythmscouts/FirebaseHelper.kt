@@ -4,28 +4,24 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
 object FirebaseHelper {
-    private val database = FirebaseDatabase.getInstance().apply {
-        setPersistenceEnabled(true) // globally enable offline persistence
-    }
+    private val database = FirebaseDatabase.getInstance() // already persisted in MyApp
 
     val usersRef: DatabaseReference = database.getReference("users").apply {
-        keepSynced(true)
+        keepSynced(true) // global offline cache
     }
 
     val eventsRef: DatabaseReference = database.getReference("events").apply {
-        keepSynced(true)
+        keepSynced(true) // global offline cache
     }
 
-    // Keep track of which user refs are already synced
     private val syncedUsers = mutableSetOf<String>()
 
     fun savedEventsRef(username: String): DatabaseReference {
         val safeUsername = username.replace(".", ",")
         val ref = database.getReference("saved_events").child(safeUsername)
         if (syncedUsers.add(safeUsername)) {
-            ref.keepSynced(true) // only call once per user
+            ref.keepSynced(true) // enable offline only once per user
         }
         return ref
     }
 }
-

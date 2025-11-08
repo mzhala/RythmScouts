@@ -24,7 +24,8 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun navigateToOnboarding() {
-        val intent = Intent(this, OnboardingActivity::class.java)
+        //val intent = Intent(this, OnboardingActivity::class.java)
+        val intent = Intent(this, SignInActivity::class.java)
         startActivity(intent)
         finish() // Close splash activity so user can't go back
     }

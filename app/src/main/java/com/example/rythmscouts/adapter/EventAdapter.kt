@@ -1,5 +1,8 @@
 package com.example.rythmscouts.adapter
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -12,6 +15,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rythmscouts.FirebaseHelper
@@ -97,17 +101,27 @@ class EventAdapter(
 
         // Handle save/unsave logic
         holder.saveButton.setOnClickListener {
-            if (savedEventIds.contains(eventId)) {
-                // Remove event from Firebase, but keep it in the list
-                dbRef.child(eventId).removeValue().addOnSuccessListener {
-                    savedEventIds = savedEventIds - eventId
-                    holder.saveButton.text = "Save"
-                    showEventStatusDialog(holder.itemView.context, false)
-                }.addOnFailureListener { it.printStackTrace() }
+            val wasSaved = savedEventIds.contains(eventId)
+            val eventRef = dbRef.child(eventId)
+
+            if (wasSaved) {
+                // Remove event from Firebase (offline-safe)
+                eventRef.removeValue()
+                savedEventIds = savedEventIds - eventId
+                holder.saveButton.text = "Save"
+                showEventStatusDialog(holder.itemView.context, false, offline = !isOnline(holder.itemView.context))
+
+                // Remove from RecyclerView immediately
+                val pos = holder.adapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    events = events.toMutableList().apply { removeAt(pos) }
+                    notifyItemRemoved(pos)
+                }
             } else {
-                // Add event to Firebase
+                // Add event to Firebase (offline-safe)
                 val salesStart = event.sales?.public?.startDateTime ?: ""
                 val salesEnd = event.sales?.public?.endDateTime ?: ""
+                val venueObj = (event._embedded as? EventVenueEmbedded)?.venues?.firstOrNull()
                 val eventData = mapOf(
                     "id" to event.id,
                     "name" to (event.name ?: "Unknown Event"),
@@ -124,13 +138,21 @@ class EventAdapter(
                     "salesEnd" to salesEnd
                 )
 
-                dbRef.child(eventId).setValue(eventData).addOnSuccessListener {
-                    savedEventIds = savedEventIds + eventId
-                    holder.saveButton.text = "Unsave"
-                    showEventStatusDialog(holder.itemView.context, true)
-                }.addOnFailureListener { it.printStackTrace() }
+                eventRef.setValue(eventData)
+                savedEventIds = savedEventIds + eventId
+                holder.saveButton.text = "Unsave"
+                showEventStatusDialog(holder.itemView.context, true, offline = !isOnline(holder.itemView.context))
+
+                // Trigger notification only if online
+                if (isOnline(holder.itemView.context)) {
+                    sendEventNotification(event.name ?: "New Event", holder.itemView.context)
+                }
             }
         }
+
+
+
+
     }
 
     fun updateData(newEvents: List<Event>) {
@@ -138,7 +160,7 @@ class EventAdapter(
         notifyDataSetChanged()
     }
 
-    private fun showEventStatusDialog(context: android.content.Context, saved: Boolean) {
+    private fun showEventStatusDialog(context: Context, saved: Boolean, offline: Boolean) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_event_status, null)
         val imageView: ImageView = dialogView.findViewById(R.id.statusImage)
         val title: TextView = dialogView.findViewById(R.id.statusTitle)
@@ -148,11 +170,76 @@ class EventAdapter(
         if (saved) {
             imageView.setImageResource(R.drawable.ic_saved)
             title.text = "Event Saved!"
-            message.text = "Can't wait to see you there!"
+            message.text = if (offline) {
+                "You're offline. This event will be saved once you reconnect."
+            } else {
+                "Can't wait to see you there!"
+            }
         } else {
             imageView.setImageResource(R.drawable.ic_unsaved)
             title.text = "Event Unsaved!"
-            message.text = "This event will be removed from your saved events."
+            message.text = if (offline) {
+                "You're offline. This event will be removed from your saved events once you reconnect."
+            } else {
+                "This event will be removed from your saved events."
+            }
+        }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).setView(dialogView).create()
+        closeButton.setOnClickListener { dialog.dismiss() }
+        dialog.show()
+        dialog.window?.decorView?.postDelayed({ dialog.dismiss() }, 2000)
+    }
+
+
+    private fun sendEventNotification(eventName: String, context: Context) {
+        val channelId = "event_notifications"
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Event Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notifications)
+            .setContentTitle("Event Saved")
+            .setContentText("You saved \"$eventName\"")
+            .setAutoCancel(true)
+            .build()
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    // --- Helper method to check network ---
+    private fun isOnline(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val network = cm.activeNetwork ?: return false
+        val capabilities = cm.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    // --- Offline popup ---
+    private fun showOfflineSaveDialog(context: Context, wasSaved: Boolean) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_event_status, null)
+        val imageView: ImageView = dialogView.findViewById(R.id.statusImage)
+        val title: TextView = dialogView.findViewById(R.id.statusTitle)
+        val message: TextView = dialogView.findViewById(R.id.statusMessage)
+        val closeButton: Button = dialogView.findViewById(R.id.closeButton)
+
+        if (wasSaved) {
+            imageView.setImageResource(R.drawable.ic_saved)
+            title.text = "Offline"
+            message.text = "You're currently offline. This event will be removed from your saved events once you reconnect."
+        } else {
+            imageView.setImageResource(R.drawable.ic_unsaved)
+            title.text = "Offline"
+            message.text = "You're currently offline. This event will be saved to your saved events once you reconnect."
         }
 
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()

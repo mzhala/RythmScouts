@@ -44,7 +44,9 @@ class MyEventsFragment : BaseFragment() {
     }
 
     private fun setupRecyclerView() {
-        eventAdapter = FirebaseEventAdapter(emptyList())
+        val safeEmail = userEmail?.replace(".", ",") ?: "unknown-user"
+        eventAdapter = FirebaseEventAdapter(emptyList(), username = safeEmail)
+
         binding.eventsRecyclerView.apply {
             adapter = eventAdapter
             layoutManager = LinearLayoutManager(requireContext())

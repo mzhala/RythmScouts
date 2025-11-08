@@ -90,4 +90,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.4.0")
 
     implementation("androidx.cardview:cardview:1.0.0")
+
+    // FCm dependency for push nortifications
+    implementation("com.google.firebase:firebase-messaging:23.3.0")
 }

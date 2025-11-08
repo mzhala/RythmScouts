@@ -264,13 +264,23 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performSignOut() {
+        // Sign out from Firebase
         FirebaseAuth.getInstance().signOut()
+
+        // Clear locally cached user info
+        requireContext().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
+
         showSnackbar("Signed out successfully")
 
+        // Navigate to SignInActivity and clear back stack
         val intent = android.content.Intent(requireContext(), SignInActivity::class.java)
         intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }
+
 
     private fun changePassword() {
         showPopup("Password changed successfully")

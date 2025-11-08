@@ -1,7 +1,11 @@
 package com.example.rythmscouts.adapter
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,21 +13,19 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.rythmscouts.R
-import com.google.firebase.database.FirebaseDatabase
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import androidx.appcompat.app.AlertDialog
 import com.example.rythmscouts.FirebaseHelper
+import com.example.rythmscouts.R
 
 data class FirebaseEvent(
     val id: String? = null,
     val name: String? = null,
-    val date: String? = null,          // formatted date for display
-    val date_raw: String? = null,      // yyyy-MM-dd
-    val time_raw: String? = null,      // HH:mm:ss
+    val date: String? = null,
+    val date_raw: String? = null,
+    val time_raw: String? = null,
     val venue: String? = null,
     val imageUrl: String? = null,
     val buyUrl: String? = null
@@ -35,7 +37,6 @@ class FirebaseEventAdapter(
     var savedEventIds: List<String> = emptyList()
 ) : RecyclerView.Adapter<FirebaseEventAdapter.EventViewHolder>() {
 
-    // Make username Firebase-safe
     private val safeUsername = username.replace(".", ",")
 
     class EventViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -62,45 +63,42 @@ class FirebaseEventAdapter(
 
         event.imageUrl?.let { Glide.with(holder.itemView.context).load(it).into(holder.image) }
 
-        // Set button text based on savedEventIds
         holder.saveButton.text = if (savedEventIds.contains(eventId)) "Unsave" else "Save"
 
-        // val dbRef = FirebaseDatabase.getInstance().getReference("saved_events").child(safeUsername)
         val dbRef = FirebaseHelper.savedEventsRef(safeUsername)
-        // dbRef.keepSynced(true)
 
         holder.saveButton.setOnClickListener {
-            if (savedEventIds.contains(eventId)) {
-                // Remove from Firebase
-                dbRef.child(eventId).removeValue().addOnSuccessListener {
-                    savedEventIds = savedEventIds - eventId
-                    holder.saveButton.text = "Save"
-                    showEventStatusDialog(holder.itemView.context, false)
+            val wasSaved = savedEventIds.contains(eventId)
+            val eventRef = dbRef.child(eventId)
+            val online = isOnline(holder.itemView.context)
 
-                    // Remove from RecyclerView immediately
-                    val pos = holder.adapterPosition
-                    if (pos != RecyclerView.NO_POSITION) {
-                        events = events.toMutableList().apply { removeAt(pos) }
-                        notifyItemRemoved(pos)
-                    }
-                }.addOnFailureListener { it.printStackTrace() }
+            if (wasSaved) {
+                // UNSAVE offline-safe
+                eventRef.removeValue()
+                savedEventIds = savedEventIds - eventId
+                holder.saveButton.text = "Save"
+                showEventStatusDialog(holder.itemView.context, false, !online)
             } else {
-                // Add to Firebase
+                // SAVE offline-safe
                 val eventData = mapOf(
                     "id" to event.id,
-                    "name" to event.name,
-                    "date" to event.date,
+                    "name" to (event.name ?: "Unknown Event"),
                     "date_raw" to event.date_raw,
                     "time_raw" to event.time_raw,
-                    "venue" to event.venue,
-                    "imageUrl" to event.imageUrl,
-                    "buyUrl" to event.buyUrl
+                    "date" to holder.date.text.toString(),
+                    "venue" to (event.venue ?: "Unknown Venue"),
+                    "imageUrl" to (event.imageUrl ?: ""),
+                    "buyUrl" to (event.buyUrl ?: "")
                 )
-                dbRef.child(eventId).setValue(eventData).addOnSuccessListener {
-                    savedEventIds = savedEventIds + eventId
-                    holder.saveButton.text = "Unsave"
-                    showEventStatusDialog(holder.itemView.context, true)
-                }.addOnFailureListener { it.printStackTrace() }
+
+                eventRef.setValue(eventData)
+                savedEventIds = savedEventIds + eventId
+                holder.saveButton.text = "Unsave"
+                showEventStatusDialog(holder.itemView.context, true, !online)
+
+                if (online) {
+                    sendEventNotification(event.name ?: "New Event", holder.itemView.context)
+                }
             }
         }
 
@@ -110,7 +108,9 @@ class FirebaseEventAdapter(
             holder.buyButton.setOnClickListener {
                 holder.itemView.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.buyUrl)))
             }
-        } else holder.buyButton.visibility = View.GONE
+        } else {
+            holder.buyButton.visibility = View.GONE
+        }
     }
 
     fun updateData(newEvents: List<FirebaseEvent>) {
@@ -118,7 +118,7 @@ class FirebaseEventAdapter(
         notifyDataSetChanged()
     }
 
-    private fun showEventStatusDialog(context: android.content.Context, saved: Boolean) {
+    private fun showEventStatusDialog(context: Context, saved: Boolean, offline: Boolean) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_event_status, null)
         val imageView: ImageView = dialogView.findViewById(R.id.statusImage)
         val title: TextView = dialogView.findViewById(R.id.statusTitle)
@@ -128,11 +128,19 @@ class FirebaseEventAdapter(
         if (saved) {
             imageView.setImageResource(R.drawable.ic_saved)
             title.text = "Event Saved!"
-            message.text = "Can't wait to see you there!"
+            message.text = if (offline) {
+                "You're offline. This event will be saved once you're back online."
+            } else {
+                "Can't wait to see you there!"
+            }
         } else {
             imageView.setImageResource(R.drawable.ic_unsaved)
             title.text = "Event Unsaved!"
-            message.text = "This event will be removed from your saved events."
+            message.text = if (offline) {
+                "You're offline. This event will be removed once you're back online."
+            } else {
+                "This event has been removed from your saved list."
+            }
         }
 
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
@@ -140,5 +148,32 @@ class FirebaseEventAdapter(
         dialog.show()
         dialog.window?.decorView?.postDelayed({ dialog.dismiss() }, 2000)
     }
-}
 
+    private fun sendEventNotification(eventName: String, context: Context) {
+        val channelId = "event_notifications"
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, "Event Notifications", NotificationManager.IMPORTANCE_HIGH)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notifications)
+            .setContentTitle("Event Saved")
+            .setContentText("You saved \"$eventName\"")
+            .setAutoCancel(true)
+            .build()
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    private fun isOnline(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+        return networkCapabilities != null &&
+                (networkCapabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI)
+                        || networkCapabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR))
+    }
+}
