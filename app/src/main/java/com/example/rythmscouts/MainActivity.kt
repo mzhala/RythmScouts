@@ -6,6 +6,7 @@ import com.example.rythmscouts.models.NotificationItem
 import com.example.rythmscouts.adapter.NotificationsAdapter
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -47,6 +48,14 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        // Request notification permission for Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
+            }
+        }
 
         auth = FirebaseAuth.getInstance()
         userEmail = intent.getStringExtra("USER_EMAIL")
