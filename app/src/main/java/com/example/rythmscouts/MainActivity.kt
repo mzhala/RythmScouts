@@ -204,7 +204,4 @@ class MainActivity : BaseActivity() {
             bottomSheetDialog.show()
         }
     }
-
-
-
 }
