@@ -165,8 +165,13 @@ class SignInActivity : AppCompatActivity() {
         }
 
         binding.googleSignInButton.isEnabled = false
-        val signInIntent = googleSignInClient.signInIntent
-        googleSignInLauncher.launch(signInIntent)
+
+        // 🌟 THE FIX: Sign out the GoogleSignInClient before launching the intent
+        // This forces the account chooser/selection dialog to appear every time.
+        googleSignInClient.signOut().addOnCompleteListener(this) {
+            val signInIntent = googleSignInClient.signInIntent
+            googleSignInLauncher.launch(signInIntent)
+        }
     }
 
     private fun handleGoogleSignIn(idToken: String) {
