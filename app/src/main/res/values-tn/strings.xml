@@ -67,7 +67,7 @@
     <string name="forgot_password">U rivalile Xikombelo?</string>
     <string name="or_sign_in_with">kumbe ngena hi</string>
     <string name="sign_in_with_google">Ngena hi Google</string>
-    <string name="don_t_have_an_account_sign_up">A wu na akhawunti? TLARISA</string>
+    <string name="don_t_have_an_account_sign_up">A wu na akhawunti?</string>
     <string name="create_your_account">Tumbuluxa akhawunti ya wena</string>
     <string name="enter_username">Ngena Vito ra Mutirhisi</string>
     <string name="enter_email_address">Ngena Xiyimo xa Imeyili</string>
@@ -81,6 +81,7 @@
     <string name="discover_events">Kuma Swiyimo</string>
     <string name="never_miss_the_events_you_love">U nga ha siyi swiyimo leswi u swi rhandzaka!</string>
     <string name="happening_today">Swi humelela Namuntlha</string>
+    <string name="happening_soon">Swi humelela Namuntlha</string>
     <string name="see_all">Vona Hinkwaswo</string>
     <string name="tickets_ending_soon">Matikhiti ya hela ku nonoka</string>
     <string name="upcoming_events">Swiyimo Leswi Taka</string>
@@ -130,4 +131,9 @@
     <string name="error">Phoso</string>
     <string name="notifications">Miyeliso</string>
     <string name="event_date_and_venue">Siku na Ndawo ya Xiyimo</string>
+
+    <string name="sign_in_title">Tsena ka akhaonto ya gago</string>
+    <string name="don_t_have_an_account_sign_up_2">Ingwaga</string>
+
+    <string name="notifications_disabled_app_policy">Notifications disabled app policy</string>
 </resources>

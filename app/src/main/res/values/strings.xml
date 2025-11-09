@@ -66,7 +66,7 @@
     <string name="forgot_password">Forgot Password?</string>
     <string name="or_sign_in_with">or sign in with</string>
     <string name="sign_in_with_google">Sign in with Google</string>
-    <string name="don_t_have_an_account_sign_up">Don\'t have an account? SIGN UP</string>
+    <string name="don_t_have_an_account_sign_up">Don\'t have an account?</string>
     <string name="create_your_account">Create your account</string>
     <string name="enter_username">Enter Username</string>
     <string name="enter_email_address">Enter Email Address</string>
@@ -80,6 +80,7 @@
     <string name="discover_events">Discover Events</string>
     <string name="never_miss_the_events_you_love">Never miss the events you love!</string>
     <string name="happening_today">Happening Soon</string>
+    <string name="happening_soon">Happening Soon</string>
     <string name="see_all">See All</string>
     <string name="tickets_ending_soon">Ticket Sales Ending Soon</string>
     <string name="upcoming_events">Upcoming Events</string>
@@ -130,4 +131,8 @@
     <string name="notifications">Notifications</string>
     <string name="event_date_and_venue">Event Date and Venue</string>
 
+    <string name="sign_in_title">Sign in to your account</string>
+    <string name="don_t_have_an_account_sign_up_2">Sign up</string>
+
+    <string name="notifications_disabled_app_policy">Notifications disabled app policy</string>
 </resources>

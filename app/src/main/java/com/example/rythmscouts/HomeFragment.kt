@@ -115,7 +115,7 @@ class HomeFragment : BaseFragment() {
                             endingSoonAdapter.updateData(endingSoonEvents)
                         }
 
-                    todayLabel.text = if (todayOrSoonEvents.isNotEmpty()) "Happening Today" else "Upcoming Events"
+                    todayLabel.text = if (todayOrSoonEvents.isNotEmpty()) getString(R.string.happening_today) else getString(R.string.upcoming_events)
 
                 } else {
                     // fallback to cache if API fails

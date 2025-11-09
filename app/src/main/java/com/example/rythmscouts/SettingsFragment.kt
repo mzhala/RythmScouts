@@ -15,6 +15,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputEditText
@@ -50,6 +51,24 @@ class SettingsFragment : Fragment() {
         rootView?.findViewById<Button>(R.id.changePhotoButton)?.setOnClickListener { openProfilePicker() }
 
         loadCurrentSettings()
+
+        // Check system permission and ensure the switch reflects the truth
+        val notificationsSwitch = rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)
+        val systemEnabled = checkSystemNotificationPermission()
+
+        if (notificationsSwitch != null) {
+            // Only update the switch if it doesn't match the system status
+            if (notificationsSwitch.isChecked != systemEnabled) {
+                notificationsSwitch.isChecked = systemEnabled
+            }
+            // Also ensure our local persisted preference reflects the system truth initially
+            if (areNotificationsEnabled != systemEnabled) {
+                areNotificationsEnabled = systemEnabled
+                sharedPreferences.edit { putBoolean("notificationsEnabled", systemEnabled) }
+            }
+        }
+        // --------------------------------------------------------------------
+
         initLanguageDropdown()
         setupSwitchListeners()
         setupClickListeners()
@@ -129,7 +148,6 @@ class SettingsFragment : Fragment() {
     }
 
     // --- Language ---
-    // --- Language ---
     private fun initLanguageDropdown() {
         languageDropdown = rootView?.findViewById(R.id.languageDropdown) ?: return
 
@@ -137,9 +155,7 @@ class SettingsFragment : Fragment() {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
         languageDropdown.setAdapter(adapter)
 
-        // 💡 **CRITICAL FIX 1: Prevent filtering for dropdown use**
-        // By setting the threshold very high, no text will ever reach it,
-        // and the dropdown will show all items when clicked.
+        // Prevent filtering for dropdown use
         languageDropdown.threshold = 100
 
         // Set dropdown text to currently stored language
@@ -220,7 +236,13 @@ class SettingsFragment : Fragment() {
         rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.setOnCheckedChangeListener { _, isChecked ->
             areNotificationsEnabled = isChecked
             sharedPreferences.edit { putBoolean("notificationsEnabled", isChecked) }
-            if (isChecked) enableNotifications() else showPopup(getString(R.string.notifications_disabled))
+
+            if (isChecked) {
+                enableNotifications()
+            } else {
+                // 🌟 UPDATED: Notify user that this is a local policy switch
+                showPopup(getString(R.string.notifications_disabled_app_policy))
+            }
         }
     }
 
@@ -244,6 +266,20 @@ class SettingsFragment : Fragment() {
         }
         showPopup(getString(R.string.notifications_enabled))
     }
+
+    // Function to check system permission status
+    private fun checkSystemNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            // areNotificationsEnabled() checks if the user disabled the entire app's notifications
+            return notificationManager.areNotificationsEnabled()
+        }
+    }
+
 
     // --- Buttons ---
     private fun setupClickListeners() {

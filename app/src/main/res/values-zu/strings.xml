@@ -66,7 +66,7 @@
     <string name="forgot_password">Ukhohlwe Iphasiwedi?</string>
     <string name="or_sign_in_with">noma ngena ngemvume nge</string>
     <string name="sign_in_with_google">Ngena ngemvume nge-Google</string>
-    <string name="don_t_have_an_account_sign_up">Awunawo i-akhawunti? Bhalisa</string>
+    <string name="don_t_have_an_account_sign_up">Awunawo i-akhawunti?</string>
     <string name="create_your_account">Yakha i-akhawunti yakho</string>
     <string name="enter_username">Faka Igama Lomsebenzisi</string>
     <string name="enter_email_address">Faka Ikheli Le-imeyili</string>
@@ -80,6 +80,7 @@
     <string name="discover_events">Thola Imicimbi</string>
     <string name="never_miss_the_events_you_love">Ungasaphindi uphuthelwa yimicimbi oyithandayo!</string>
     <string name="happening_today">Kwenzeka Maduze</string>
+    <string name="happening_soon">Kwenzeka Maduze</string>
     <string name="see_all">Bona Konke</string>
     <string name="tickets_ending_soon">Amathikithi aphela maduzane</string>
     <string name="upcoming_events">Imicimbi Ezayo</string>
@@ -128,4 +129,9 @@
     <string name="error">Iphutha</string>
     <string name="notifications">Izaziso</string>
     <string name="event_date_and_venue">Usuku Lwemicimbi Nendawo</string>
+
+    <string name="sign_in_title">Ngena ku-akhawunti yakho</string>
+    <string name="don_t_have_an_account_sign_up_2">Bhalisela</string>
+
+    <string name="notifications_disabled_app_policy">Notifications disabled app policy</string>
 </resources>
