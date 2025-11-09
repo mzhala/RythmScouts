@@ -11,6 +11,12 @@ RythmScouts is an Android mobile application for discovering, browsing, and savi
 ---
 https://youtu.be/YaImxK9W34c
 
+
+
+(SSO login demo)
+
+https://youtube.com/shorts/pxWDDiy7li4?feature=share
+
 ## Table of Contents
 
 - [App Overview](#app-overview)
