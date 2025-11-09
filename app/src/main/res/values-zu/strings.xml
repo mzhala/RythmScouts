@@ -88,4 +88,33 @@
     <string name="event_date">Usuku Lomcimbi</string>
     <string name="event_venue">Indawo Yomcimbi</string>
     <string name="save">Londoloza</string>
+    <string name="user">Umsebenzisi</string>
+    <string name="user_data_not_found">idatha yomsebenzisi ayitholakali</string>
+    <string name="failed_load_user_data">ukuhluleka ukulayisha idatha yomsebenzisi</string>
+
+    <string name="profile_updated_zu">Iphrofayela ibuyekeziwe</string>
+    <string name="profile_update_failed_zu">Akuphumelelanga ukubuyekeza iphrofayela</string>
+    <string name="language_change_confirm_zu">Uqinisekile ukuthi ufuna ukushintsha ulimi?</string>
+    <string name="language_change_confirm_tn">Uqinisekile ukuthi ufuna ukushintsha ulimi?</string>
+    <string name="language_change_confirm_en">Uqinisekile ukuthi ufuna ukushintsha ulimi?</string>
+    <string name="language_changed">Ulimi lushintshile</string>
+    <string name="dark_mode_enabled">Imodi emnyama ivuliwe</string>
+    <string name="dark_mode_disabled">Imodi emnyama ivaliwe</string>
+    <string name="notifications_disabled">Izaziso zivaliwe</string>
+    <string name="notifications_enabled">Izaziso zivuliwe</string>
+    <string name="sign_out_confirm">Uqinisekile ukuthi ufuna ukuphuma?</string>
+    <string name="select_profile_picture">Khetha isithombe sephrofayela</string>
+    <string name="notification_permission_denied">Imvume yezaziso ayinikezwanga</string>
+    <string name="profile_updated_tn">Iphrofayela ibuyekeziwe</string>
+    <string name="profile_update_failed_tn">Akuphumelelanga ukubuyekeza iphrofayela</string>
+    <string name="profile_updated_en">Iphrofayela ibuyekeziwe</string>
+    <string name="profile_update_failed_en">Akuphumelelanga ukubuyekeza iphrofayela</string>
+
+    <string name="change_en">Shintsha</string>
+    <string name="change_zu">Shintsha</string>
+    <string name="change_tn">Shintsha</string>
+
+    <string name="cancel_en">Khansela</string>
+    <string name="cancel_zu">Khansela</string>
+    <string name="cancel_tn">Khansela</string>
 </resources>

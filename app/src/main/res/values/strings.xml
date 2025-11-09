@@ -88,4 +88,35 @@
     <string name="event_date">Event Date</string>
     <string name="event_venue">Event Venue</string>
     <string name="save">Save</string>
+    <string name="user">User</string>
+    <string name="user_data_not_found">user data not found</string>
+    <string name="failed_load_user_data">failed load user data</string>
+
+    <!-- settings-->
+    <string name="profile_updated_zu">Profile updated</string>
+    <string name="profile_update_failed_zu">Failed to update profile</string>
+    <string name="language_change_confirm_zu">Are you sure you want to change the language?</string>
+    <string name="language_change_confirm_tn">Are you sure you want to change the language?</string>
+    <string name="language_change_confirm_en">Are you sure you want to change the language?</string>
+    <string name="language_changed">Language changed</string>
+    <string name="dark_mode_enabled">Dark mode enabled</string>
+    <string name="dark_mode_disabled">Dark mode disabled</string>
+    <string name="notifications_disabled">Notifications disabled</string>
+    <string name="notifications_enabled">Notifications enabled</string>
+    <string name="sign_out_confirm">Are you sure you want to sign out?</string>
+    <string name="select_profile_picture">Select profile picture</string>
+    <string name="notification_permission_denied">Notification permission denied</string>
+    <string name="profile_updated_tn">Profile updated</string>
+    <string name="profile_update_failed_tn">Failed to update profile</string>
+    <string name="profile_updated_en">Profile updated</string>
+    <string name="profile_update_failed_en">Failed to update profile</string>
+
+    <string name="change_en">Change</string>
+    <string name="change_zu">Change</string>
+    <string name="change_tn">Change</string>
+
+    <string name="cancel_en">Cancel</string>
+    <string name="cancel_zu">Cancel</string>
+    <string name="cancel_tn">Cancel</string>
+
 </resources>

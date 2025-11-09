@@ -6,7 +6,7 @@ import com.example.rythmscouts.models.NotificationItem
 import com.example.rythmscouts.adapter.NotificationsAdapter
 
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
+import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -15,10 +15,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
@@ -39,8 +36,16 @@ class MainActivity : BaseActivity() {
     private lateinit var ivProfilePicture: ImageView
     private lateinit var tvTitle: TextView
     private lateinit var tvTitleText: TextView
-    private lateinit var ivNotification: ImageView
     private var userEmail: String? = null
+
+    companion object {
+        const val PREFS_NAME = "AppSettings"
+        const val LAST_FRAGMENT_KEY = "last_fragment"
+        const val TAG_HOME = "tag_home"
+        const val TAG_EXPLORE = "tag_explore"
+        const val TAG_MY_EVENTS = "tag_my_events"
+        const val TAG_SETTINGS = "tag_settings"
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId")
@@ -49,54 +54,69 @@ class MainActivity : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // Request notification permission for Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
-            }
-        }
-
         auth = FirebaseAuth.getInstance()
         userEmail = intent.getStringExtra("USER_EMAIL")
 
         ivProfilePicture = findViewById(R.id.profile_picture)
         tvTitle = findViewById(R.id.title)
         tvTitleText = findViewById(R.id.title_text)
-        ivNotification = findViewById(R.id.nortification)
-
         val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
 
-        replaceFragment(homeFragment)
-        bottomNavigation.menu.findItem(R.id.navigation_home).isChecked = true
-        updateHeaderForSelectedPage(R.id.navigation_home)
+        // Restore last fragment
+        val lastTag = getLastFragmentTag()
+        val fragment = when (lastTag) {
+            TAG_EXPLORE -> exploreFragment
+            TAG_MY_EVENTS -> myEventsFragment
+            TAG_SETTINGS -> settingsFragment
+            else -> homeFragment
+        }
+
+        // Add all fragments, show the last active one
+        supportFragmentManager.beginTransaction().apply {
+            add(R.id.fragment_container, homeFragment, TAG_HOME).hide(homeFragment)
+            add(R.id.fragment_container, exploreFragment, TAG_EXPLORE).hide(exploreFragment)
+            add(R.id.fragment_container, myEventsFragment, TAG_MY_EVENTS).hide(myEventsFragment)
+            add(R.id.fragment_container, settingsFragment, TAG_SETTINGS).hide(settingsFragment)
+            show(fragment)
+        }.commit()
+
+        updateHeaderForSelectedPage(
+            when (lastTag) {
+                TAG_EXPLORE -> R.id.navigation_explore
+                TAG_MY_EVENTS -> R.id.navigation_my_events
+                TAG_SETTINGS -> R.id.navigation_settings
+                else -> R.id.navigation_home
+            }
+        )
 
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.navigation_home -> replaceFragment(homeFragment)
-                R.id.navigation_explore -> replaceFragment(exploreFragment)
-                R.id.navigation_my_events -> replaceFragment(myEventsFragment)
-                R.id.navigation_settings -> replaceFragment(settingsFragment)
+            val tag = when (item.itemId) {
+                R.id.navigation_home -> TAG_HOME
+                R.id.navigation_explore -> TAG_EXPLORE
+                R.id.navigation_my_events -> TAG_MY_EVENTS
+                R.id.navigation_settings -> TAG_SETTINGS
+                else -> TAG_HOME
             }
+            switchFragment(tag)
             updateHeaderForSelectedPage(item.itemId)
             true
         }
-
-        fetchUserDetails()
-
-        ivNotification.setOnClickListener {
-            showNotificationsPopup()
-        }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
-        val bundle = Bundle()
-        bundle.putString("USER_EMAIL", userEmail)
-        fragment.arguments = bundle
+    // Efficient fragment switching with hide/show
+    private fun switchFragment(tag: String) {
+        val transaction = supportFragmentManager.beginTransaction()
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .commit()
+        val fragments = listOf(TAG_HOME, TAG_EXPLORE, TAG_MY_EVENTS, TAG_SETTINGS)
+        for (t in fragments) {
+            supportFragmentManager.findFragmentByTag(t)?.let { transaction.hide(it) }
+        }
+
+        val fragmentToShow = supportFragmentManager.findFragmentByTag(tag)
+        fragmentToShow?.let {
+            transaction.show(it).commit()
+            saveCurrentFragmentTag(tag)
+        }
     }
 
     private fun updateHeaderForSelectedPage(menuItemId: Int) {
@@ -120,19 +140,22 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun fetchUserDetails() {
-        val userId = auth.currentUser?.uid ?: return
-        val userRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
-
-        userRef.get().addOnSuccessListener { snapshot ->
-            val username = snapshot.child("username").getValue(String::class.java)
-            val email = snapshot.child("email").getValue(String::class.java)
-        }
-    }
-
     fun getUserEmail(): String? = userEmail
 
-    /** Show notifications popup safely */
+    // Save current fragment tag
+    fun saveCurrentFragmentTag(tag: String) {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString(LAST_FRAGMENT_KEY, tag)
+            .apply()
+    }
+
+    // Get last saved fragment tag
+    private fun getLastFragmentTag(): String {
+        return getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(LAST_FRAGMENT_KEY, TAG_HOME) ?: TAG_HOME
+    }
+
+    // (Optional) Notification popup - unchanged
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showNotificationsPopup() {
         val bottomSheetDialog = BottomSheetDialog(this)
@@ -150,7 +173,6 @@ class MainActivity : BaseActivity() {
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val today = LocalDate.now()
 
-            // Get events from Firebase
             val events = snapshot.children.mapNotNull { it.getValue(FirebaseEvent::class.java) }
                 .filter { !it.date_raw.isNullOrEmpty() }
 
@@ -162,7 +184,6 @@ class MainActivity : BaseActivity() {
                 return@addOnSuccessListener
             }
 
-            // Group events by time frame
             val grouped = events.groupBy { event ->
                 val eventDate = LocalDate.parse(event.date_raw, formatter)
                 val weeksDiff = ChronoUnit.WEEKS.between(today, eventDate)
@@ -177,11 +198,9 @@ class MainActivity : BaseActivity() {
                 }
             }
 
-            // Sort keys chronologically
             val sortedKeys = listOf("This Week", "Next Month", "In Few Months", "Later", "Past")
             sortedKeys.forEach { key ->
                 grouped[key]?.let { eventsForTimeFrame ->
-                    // Add header
                     val header = TextView(this).apply {
                         text = key
                         setTypeface(null, Typeface.BOLD)
@@ -189,7 +208,6 @@ class MainActivity : BaseActivity() {
                     }
                     container.addView(header)
 
-                    // Add each event
                     eventsForTimeFrame.forEach { event ->
                         val itemView = layoutInflater.inflate(R.layout.item_notification, container, false)
                         val titleView = itemView.findViewById<TextView>(R.id.notificationTitle)
@@ -197,7 +215,6 @@ class MainActivity : BaseActivity() {
 
                         titleView.text = event.name
                         subtitleView.text = "${event.date_raw} ${event.time_raw ?: ""} @ ${event.venue ?: ""}"
-
                         container.addView(itemView)
                     }
                 }

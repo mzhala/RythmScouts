@@ -89,5 +89,34 @@
     <string name="event_date">Siku ra Xiyimo</string>
     <string name="event_venue">Ndawo ya Xiyimo</string>
     <string name="save">Hlayisa</string>
+    <string name="user">Mosebedisi</string>
+    <string name="user_data_not_found">tshedimosetso ya mosebedisi ga e fitlhelewe</string>
+    <string name="failed_load_user_data">go palelwa ke go lata tshedimosetso ya mosebedisi</string>
 
+    <!-- settings-->
+    <string name="profile_updated_zu">Profaili e ntšhwilwe</string>
+    <string name="profile_update_failed_zu">Go palelwa ke go ntšhwila profaili</string>
+    <string name="language_change_confirm_zu">A o tshepa gore o batla go fetola puo?</string>
+    <string name="language_change_confirm_tn">A o tshepa gore o batla go fetola puo?</string>
+    <string name="language_change_confirm_en">A o tshepa gore o batla go fetola puo?</string>
+    <string name="language_changed">Puo e fetogile</string>
+    <string name="dark_mode_enabled">Mokgwa o montsho o tswitswe</string>
+    <string name="dark_mode_disabled">Mokgwa o montsho o kgaotswe</string>
+    <string name="notifications_disabled">Ditsebiso di kgaotswe</string>
+    <string name="notifications_enabled">Ditsebiso di tswitswe</string>
+    <string name="sign_out_confirm">A o tshepa gore o batla go tswa?</string>
+    <string name="select_profile_picture">Kgetha setshwantsho sa profaili</string>
+    <string name="notification_permission_denied">Tlhopho ya ditsebiso e ganetswe</string>
+    <string name="profile_updated_tn">Profaili e ntšhwilwe</string>
+    <string name="profile_update_failed_tn">Go palelwa ke go ntšhwila profaili</string>
+    <string name="profile_updated_en">Iphrofayela ibuyekeziwe</string>
+    <string name="profile_update_failed_en">Go palelwa ke go ntšhwila profaili</string>
+
+    <string name="change_en">Fetola</string>
+    <string name="change_zu">Fetola</string>
+    <string name="change_tn">Fetola</string>
+
+    <string name="cancel_en">Kgathatsa</string>
+    <string name="cancel_zu">Kgathatsa</string>
+    <string name="cancel_tn">Kgathatsa</string>
 </resources>

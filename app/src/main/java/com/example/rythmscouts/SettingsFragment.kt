@@ -8,8 +8,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +16,6 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -32,23 +29,17 @@ class SettingsFragment : Fragment() {
 
     private lateinit var languageDropdown: AutoCompleteTextView
     private val languageCodes = arrayOf("en", "zu", "tn")
+    private val CHANNEL_ID = "notifications_channel"
+    private lateinit var profileImageView: ImageView
 
     private val languageNames: Array<String>
         get() = when (getPersistedLanguage()) {
-            "zu" -> arrayOf("isiNgisi", "isiZulu", "Xitsonga")
-            "tn" -> arrayOf("Xinghezi", "isiZulu", "Xitsonga")
-            else -> arrayOf("English", "isiZulu", "Xitsonga")
+            "zu" -> arrayOf("isiNgisi", "isiZulu", "Setswana")
+            "tn" -> arrayOf("Sekgowa", "isiZulu", "Setswana")
+            else -> arrayOf("English", "isiZulu", "Setswana")
         }
 
-    private val CHANNEL_ID = "notifications_channel"
-
-    private lateinit var profileImageView: ImageView
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_settings, container, false)
         return rootView!!
     }
@@ -57,12 +48,9 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sharedPreferences = requireContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
-
         profileImageView = rootView?.findViewById(R.id.profileImage)!!
 
-        rootView?.findViewById<Button>(R.id.changePhotoButton)?.setOnClickListener {
-            openProfilePicker()
-        }
+        rootView?.findViewById<Button>(R.id.changePhotoButton)?.setOnClickListener { openProfilePicker() }
 
         initLanguageDropdown()
         setupSwitchListeners()
@@ -92,16 +80,16 @@ class SettingsFragment : Fragment() {
                 val displayName = when {
                     firstName.isNotEmpty() || lastName.isNotEmpty() -> "$firstName $lastName".trim()
                     username.isNotEmpty() -> username
-                    else -> "User"
+                    else -> getString(R.string.user)
                 }
 
                 rootView?.findViewById<TextView>(R.id.userName)?.text = displayName
                 rootView?.findViewById<TextView>(R.id.userEmail)?.text = email
             } else {
-                showSnackbar("User data not found")
+                showPopup(getString(R.string.user_data_not_found))
             }
         }.addOnFailureListener {
-            showSnackbar("Failed to load user data")
+            showPopup(getString(R.string.failed_load_user_data))
         }
     }
 
@@ -114,36 +102,30 @@ class SettingsFragment : Fragment() {
         val username = rootView?.findViewById<TextInputEditText>(R.id.usernameEditText)?.text.toString().trim()
 
         if (username.isEmpty()) {
-            showSnackbar("Please enter a username")
+            showPopup(getString(R.string.enter_username))
             return
         }
 
-        val updates = mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
-            "username" to username
-        )
-
+        val updates = mapOf("firstName" to firstName, "lastName" to lastName, "username" to username)
         dbRef.updateChildren(updates).addOnSuccessListener {
             val displayName = when {
                 firstName.isNotEmpty() || lastName.isNotEmpty() -> "$firstName $lastName".trim()
                 username.isNotEmpty() -> username
-                else -> "User"
+                else -> getString(R.string.user)
             }
-
             rootView?.findViewById<TextView>(R.id.userName)?.text = displayName
 
             val message = when (getPersistedLanguage()) {
-                "zu" -> "Iphrofayili ibuyekezwe ngempumelelo"
-                "tn" -> "Profayili yi antswuxiwile hi ku humelela"
-                else -> "Profile updated successfully"
+                "zu" -> getString(R.string.profile_updated_zu)
+                "tn" -> getString(R.string.profile_updated_tn)
+                else -> getString(R.string.profile_updated_en)
             }
             showPopup(message)
         }.addOnFailureListener {
             val message = when (getPersistedLanguage()) {
-                "zu" -> "Kwehlulekile ukubuyekeza iphrofayili"
-                "tn" -> "Ku tsandzekile ku antswuxa profayili"
-                else -> "Failed to update profile"
+                "zu" -> getString(R.string.profile_update_failed_zu)
+                "tn" -> getString(R.string.profile_update_failed_tn)
+                else -> getString(R.string.profile_update_failed_en)
             }
             showPopup(message)
         }
@@ -157,25 +139,25 @@ class SettingsFragment : Fragment() {
 
         val currentLanguage = getPersistedLanguage()
         val currentPosition = languageCodes.indexOf(currentLanguage)
-        if (currentPosition != -1) {
-            languageDropdown.setText(languageNames[currentPosition], false)
+        if (currentPosition != -1) languageDropdown.setText(languageNames[currentPosition], false)
+
+        // Fix popup positioning
+        languageDropdown.post {
+            languageDropdown.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT)
         }
 
         languageDropdown.setOnItemClickListener { _, _, position, _ ->
             val selectedLanguageCode = languageCodes[position]
-            val currentLanguageCode = getPersistedLanguage()
-            if (selectedLanguageCode != currentLanguageCode) {
-                showLanguageChangeConfirmation(selectedLanguageCode)
-            }
+            if (selectedLanguageCode != getPersistedLanguage()) showLanguageChangeConfirmation(selectedLanguageCode)
         }
     }
 
     private fun showLanguageChangeConfirmation(languageCode: String) {
         val currentLanguage = getPersistedLanguage()
         val (message, positiveButton, negativeButton) = when (currentLanguage) {
-            "zu" -> Triple("Uqinisekile ukuthi ufuna ukushintsha ulimi? Uhlelo lizovulwa kabusha.", "Shintsha", "Khansela")
-            "tn" -> Triple("U na xiximi lexi u lava ku cinca ririmi? App yi ta sungula nakambe.", "Cinca", "Kansela")
-            else -> Triple("Are you sure you want to change the language? The app will restart.", "Change", "Cancel")
+            "zu" -> Triple(getString(R.string.language_change_confirm_zu), getString(R.string.change_zu), getString(R.string.cancel_zu))
+            "tn" -> Triple(getString(R.string.language_change_confirm_tn), getString(R.string.change_tn), getString(R.string.cancel_tn))
+            else -> Triple(getString(R.string.language_change_confirm_en), getString(R.string.change_en), getString(R.string.cancel_en))
         }
 
         AlertDialog.Builder(requireContext())
@@ -187,39 +169,33 @@ class SettingsFragment : Fragment() {
     }
 
     private fun changeAppLanguage(languageCode: String) {
-        sharedPreferences.edit { putString("selected_language", languageCode) }
-        val message = when (languageCode) {
-            "zu" -> "Indlela yolimi ishintshiwe"
-            "tn" -> "Ririmi ri cincile hi ku humelela"
-            else -> "Language changed successfully"
+        sharedPreferences.edit {
+            putString("selected_language", languageCode)
+            // Save using constant tag so MainActivity restores Settings correctly
+            putString(MainActivity.LAST_FRAGMENT_KEY, MainActivity.TAG_SETTINGS)
         }
-        showSnackbar(message)
-
-        Handler(Looper.getMainLooper()).postDelayed({
+        showPopup(getString(R.string.language_changed)) {
             requireActivity().recreate()
-        }, 1000)
+        }
     }
 
-    private fun getPersistedLanguage(): String {
-        return sharedPreferences.getString("selected_language", "en") ?: "en"
-    }
+    private fun getPersistedLanguage(): String = sharedPreferences.getString("selected_language", "en") ?: "en"
 
     // --- Dark mode and notifications ---
     private fun setupSwitchListeners() {
-        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)
-            ?.setOnCheckedChangeListener { _, isChecked ->
+        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.setOnCheckedChangeListener { _, isChecked ->
+            if (isDarkModeEnabled != isChecked) {
                 isDarkModeEnabled = isChecked
                 sharedPreferences.edit { putBoolean("darkMode", isChecked) }
                 toggleDarkMode(isChecked)
-                showSnackbar(if (isChecked) "Dark mode enabled" else "Dark mode disabled")
             }
+        }
 
-        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)
-            ?.setOnCheckedChangeListener { _, isChecked ->
-                areNotificationsEnabled = isChecked
-                sharedPreferences.edit { putBoolean("notificationsEnabled", isChecked) }
-                if (isChecked) enableNotifications() else showSnackbar("Notifications disabled")
-            }
+        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.setOnCheckedChangeListener { _, isChecked ->
+            areNotificationsEnabled = isChecked
+            sharedPreferences.edit { putBoolean("notificationsEnabled", isChecked) }
+            if (isChecked) enableNotifications() else showPopup(getString(R.string.notifications_disabled))
+        }
     }
 
     private fun toggleDarkMode(isDarkMode: Boolean) {
@@ -231,9 +207,7 @@ class SettingsFragment : Fragment() {
 
     private fun enableNotifications() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
                 return
             }
@@ -241,11 +215,10 @@ class SettingsFragment : Fragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, "App Notifications", NotificationManager.IMPORTANCE_DEFAULT)
-            val notificationManager: NotificationManager =
-                requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager: NotificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-        showSnackbar("Notifications enabled")
+        showPopup(getString(R.string.notifications_enabled))
     }
 
     // --- Click listeners ---
@@ -257,27 +230,25 @@ class SettingsFragment : Fragment() {
 
     private fun showSignOutConfirmation() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Sign Out")
-            .setMessage("Are you sure you want to sign out?")
-            .setPositiveButton("Sign Out") { _, _ -> performSignOut() }
-            .setNegativeButton("Cancel", null)
+            .setTitle(getString(R.string.sign_out))
+            .setMessage(getString(R.string.sign_out_confirm))
+            .setPositiveButton(getString(R.string.sign_out)) { _, _ -> performSignOut() }
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun performSignOut() {
         FirebaseAuth.getInstance().signOut()
-        requireContext().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
-            .edit().clear().apply()
-
-        showSnackbar("Signed out successfully")
-
-        val intent = android.content.Intent(requireContext(), SignInActivity::class.java)
-        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+        requireContext().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE).edit().clear().apply()
+        showPopup(getString(R.string.signed_out)) {
+            val intent = android.content.Intent(requireContext(), SignInActivity::class.java)
+            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
     }
 
     private fun changePassword() {
-        showPopup("Password changed successfully")
+        showPopup(getString(R.string.password_changed))
     }
 
     private fun loadCurrentSettings() {
@@ -285,29 +256,20 @@ class SettingsFragment : Fragment() {
         areNotificationsEnabled = sharedPreferences.getBoolean("notificationsEnabled", true)
         rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.isChecked = isDarkModeEnabled
         rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = areNotificationsEnabled
-        toggleDarkMode(isDarkModeEnabled)
     }
 
-    private fun showSnackbar(message: String) {
-        view?.let { Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show() }
-    }
-
-    private fun showPopup(message: String) {
+    private fun showPopup(message: String, onOk: (() -> Unit)? = null) {
         AlertDialog.Builder(requireContext())
             .setMessage(message)
-            .setPositiveButton("OK", null)
+            .setPositiveButton(android.R.string.ok) { _, _ -> onOk?.invoke() }
             .show()
     }
 
-    // --- Avatar grid picker ---
+    // --- Avatar picker ---
     private fun openProfilePicker() {
         val profileImages = arrayOf(
-            R.drawable.profile_1,
-            R.drawable.profile_2,
-            R.drawable.profile_3,
-            R.drawable.profile_4,
-            R.drawable.profile_5,
-            R.drawable.profile_6
+            R.drawable.profile_1, R.drawable.profile_2, R.drawable.profile_3,
+            R.drawable.profile_4, R.drawable.profile_5, R.drawable.profile_6
         )
 
         val gridView = GridView(requireContext()).apply {
@@ -317,47 +279,38 @@ class SettingsFragment : Fragment() {
                 override fun getItem(position: Int) = profileImages[position]
                 override fun getItemId(position: Int) = position.toLong()
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                    val imageView = convertView as? ImageView ?: LayoutInflater.from(context)
-                        .inflate(R.layout.item_avatar, parent, false) as ImageView
+                    val imageView = convertView as? ImageView ?: LayoutInflater.from(context).inflate(R.layout.item_avatar, parent, false) as ImageView
                     imageView.setImageResource(profileImages[position])
                     return imageView
                 }
             }
-            setPadding(16,16,16,16)
+            setPadding(16, 16, 16, 16)
             horizontalSpacing = 16
             verticalSpacing = 16
         }
 
         val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("Select Profile Picture")
+            .setTitle(getString(R.string.select_profile_picture))
             .setView(gridView)
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .create()
         dialog.show()
 
         gridView.setOnItemClickListener { _, _, position, _ ->
             val selectedImageRes = profileImages[position]
             profileImageView.setImageResource(selectedImageRes)
-
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnItemClickListener
-            FirebaseDatabase.getInstance().getReference("users").child(userId)
-                .child("profileImageResId")
-                .setValue(selectedImageRes)
-
+            FirebaseDatabase.getInstance().getReference("users").child(userId).child("profileImageResId").setValue(selectedImageRes)
             dialog.dismiss()
         }
     }
 
     private fun loadUserProfileImage() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        FirebaseDatabase.getInstance().getReference("users").child(userId)
-            .child("profileImageResId")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val resId = snapshot.getValue(Int::class.java)
-                if (resId != null) profileImageView.setImageResource(resId)
-                else profileImageView.setImageResource(R.drawable.ic_default_profile_picture)
-            }
+        FirebaseDatabase.getInstance().getReference("users").child(userId).child("profileImageResId").get().addOnSuccessListener { snapshot ->
+            val resId = snapshot.getValue(Int::class.java)
+            profileImageView.setImageResource(resId ?: R.drawable.ic_default_profile_picture)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -365,7 +318,7 @@ class SettingsFragment : Fragment() {
         if (requestCode == 1001 && (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             enableNotifications()
         } else {
-            showSnackbar("Notification permission denied")
+            showPopup(getString(R.string.notification_permission_denied))
             rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = false
         }
     }
