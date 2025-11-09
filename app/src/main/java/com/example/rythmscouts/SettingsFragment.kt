@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
@@ -52,15 +53,15 @@ class SettingsFragment : Fragment() {
 
         rootView?.findViewById<Button>(R.id.changePhotoButton)?.setOnClickListener { openProfilePicker() }
 
+        loadCurrentSettings()
         initLanguageDropdown()
         setupSwitchListeners()
         setupClickListeners()
-        loadCurrentSettings()
         loadUserData()
         loadUserProfileImage()
     }
 
-    // --- Load user data ---
+    // --- User Data ---
     private fun loadUserData() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val dbRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
@@ -131,26 +132,44 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    // --- Language dropdown ---
+    // --- Language ---
     private fun initLanguageDropdown() {
         languageDropdown = rootView?.findViewById(R.id.languageDropdown) ?: return
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
+
+        // All language codes
+        val codes = arrayOf("en", "zu", "tn")
+
+        // Names for dropdown according to current app language
+        val currentLanguage = getPersistedLanguage()
+        val names = when (currentLanguage) {
+            "zu" -> arrayOf("isiNgisi", "isiZulu", "Setswana")
+            "tn" -> arrayOf("Sekgowa", "isiZulu", "Setswana")
+            else -> arrayOf("English", "isiZulu", "Setswana")
+        }
+
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, names)
         languageDropdown.setAdapter(adapter)
 
-        val currentLanguage = getPersistedLanguage()
-        val currentPosition = languageCodes.indexOf(currentLanguage)
-        if (currentPosition != -1) languageDropdown.setText(languageNames[currentPosition], false)
+        // Set currently selected item
+        val currentIndex = codes.indexOf(currentLanguage)
+        if (currentIndex != -1) {
+            languageDropdown.setText(names[currentIndex], false)
+        }
 
-        // Fix popup positioning
         languageDropdown.post {
             languageDropdown.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT)
         }
 
         languageDropdown.setOnItemClickListener { _, _, position, _ ->
-            val selectedLanguageCode = languageCodes[position]
-            if (selectedLanguageCode != getPersistedLanguage()) showLanguageChangeConfirmation(selectedLanguageCode)
+            val selectedCode = codes[position]
+            if (selectedCode != getPersistedLanguage()) {
+                showLanguageChangeConfirmation(selectedCode)
+            }
         }
     }
+
+
+
 
     private fun showLanguageChangeConfirmation(languageCode: String) {
         val currentLanguage = getPersistedLanguage()
@@ -171,7 +190,6 @@ class SettingsFragment : Fragment() {
     private fun changeAppLanguage(languageCode: String) {
         sharedPreferences.edit {
             putString("selected_language", languageCode)
-            // Save using constant tag so MainActivity restores Settings correctly
             putString(MainActivity.LAST_FRAGMENT_KEY, MainActivity.TAG_SETTINGS)
         }
         showPopup(getString(R.string.language_changed)) {
@@ -181,7 +199,22 @@ class SettingsFragment : Fragment() {
 
     private fun getPersistedLanguage(): String = sharedPreferences.getString("selected_language", "en") ?: "en"
 
-    // --- Dark mode and notifications ---
+    // --- Dark mode & notifications ---
+    private fun loadCurrentSettings() {
+        isDarkModeEnabled = sharedPreferences.getBoolean("darkMode", false)
+        areNotificationsEnabled = sharedPreferences.getBoolean("notificationsEnabled", true)
+
+        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.apply {
+            setOnCheckedChangeListener(null)
+            isChecked = isDarkModeEnabled
+        }
+
+        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.apply {
+            setOnCheckedChangeListener(null)
+            isChecked = areNotificationsEnabled
+        }
+    }
+
     private fun setupSwitchListeners() {
         rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.setOnCheckedChangeListener { _, isChecked ->
             if (isDarkModeEnabled != isChecked) {
@@ -199,10 +232,8 @@ class SettingsFragment : Fragment() {
     }
 
     private fun toggleDarkMode(isDarkMode: Boolean) {
-        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode) androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-            else androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-        )
+        val mode = if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        AppCompatDelegate.setDefaultNightMode(mode)
     }
 
     private fun enableNotifications() {
@@ -215,13 +246,13 @@ class SettingsFragment : Fragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, "App Notifications", NotificationManager.IMPORTANCE_DEFAULT)
-            val notificationManager: NotificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
         showPopup(getString(R.string.notifications_enabled))
     }
 
-    // --- Click listeners ---
+    // --- Buttons ---
     private fun setupClickListeners() {
         rootView?.findViewById<View>(R.id.signOutButton)?.setOnClickListener { showSignOutConfirmation() }
         rootView?.findViewById<View>(R.id.updateProfileButton)?.setOnClickListener { updateProfile() }
@@ -249,20 +280,6 @@ class SettingsFragment : Fragment() {
 
     private fun changePassword() {
         showPopup(getString(R.string.password_changed))
-    }
-
-    private fun loadCurrentSettings() {
-        isDarkModeEnabled = sharedPreferences.getBoolean("darkMode", false)
-        areNotificationsEnabled = sharedPreferences.getBoolean("notificationsEnabled", true)
-        rootView?.findViewById<SwitchCompat>(R.id.darkModeSwitch)?.isChecked = isDarkModeEnabled
-        rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = areNotificationsEnabled
-    }
-
-    private fun showPopup(message: String, onOk: (() -> Unit)? = null) {
-        AlertDialog.Builder(requireContext())
-            .setMessage(message)
-            .setPositiveButton(android.R.string.ok) { _, _ -> onOk?.invoke() }
-            .show()
     }
 
     // --- Avatar picker ---
@@ -321,6 +338,13 @@ class SettingsFragment : Fragment() {
             showPopup(getString(R.string.notification_permission_denied))
             rootView?.findViewById<SwitchCompat>(R.id.notificationsSwitch)?.isChecked = false
         }
+    }
+
+    private fun showPopup(message: String, onOk: (() -> Unit)? = null) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok) { _, _ -> onOk?.invoke() }
+            .show()
     }
 
     override fun onDestroyView() {

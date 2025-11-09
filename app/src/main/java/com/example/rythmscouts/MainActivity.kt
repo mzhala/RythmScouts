@@ -54,41 +54,28 @@ class MainActivity : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        auth = FirebaseAuth.getInstance()
-        userEmail = intent.getStringExtra("USER_EMAIL")
-
-        ivProfilePicture = findViewById(R.id.profile_picture)
-        tvTitle = findViewById(R.id.title)
-        tvTitleText = findViewById(R.id.title_text)
-        val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
-
         // Restore last fragment
         val lastTag = getLastFragmentTag()
-        val fragment = when (lastTag) {
-            TAG_EXPLORE -> exploreFragment
-            TAG_MY_EVENTS -> myEventsFragment
-            TAG_SETTINGS -> settingsFragment
-            else -> homeFragment
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction().apply {
+                add(R.id.fragment_container, homeFragment, TAG_HOME).hide(homeFragment)
+                add(R.id.fragment_container, exploreFragment, TAG_EXPLORE).hide(exploreFragment)
+                add(R.id.fragment_container, myEventsFragment, TAG_MY_EVENTS).hide(myEventsFragment)
+                add(R.id.fragment_container, settingsFragment, TAG_SETTINGS).hide(settingsFragment)
+
+                val fragmentToShow = when (lastTag) {
+                    TAG_EXPLORE -> exploreFragment
+                    TAG_MY_EVENTS -> myEventsFragment
+                    TAG_SETTINGS -> settingsFragment
+                    else -> homeFragment
+                }
+                show(fragmentToShow)
+            }.commit()
         }
 
-        // Add all fragments, show the last active one
-        supportFragmentManager.beginTransaction().apply {
-            add(R.id.fragment_container, homeFragment, TAG_HOME).hide(homeFragment)
-            add(R.id.fragment_container, exploreFragment, TAG_EXPLORE).hide(exploreFragment)
-            add(R.id.fragment_container, myEventsFragment, TAG_MY_EVENTS).hide(myEventsFragment)
-            add(R.id.fragment_container, settingsFragment, TAG_SETTINGS).hide(settingsFragment)
-            show(fragment)
-        }.commit()
-
-        updateHeaderForSelectedPage(
-            when (lastTag) {
-                TAG_EXPLORE -> R.id.navigation_explore
-                TAG_MY_EVENTS -> R.id.navigation_my_events
-                TAG_SETTINGS -> R.id.navigation_settings
-                else -> R.id.navigation_home
-            }
-        )
-
+        // Bottom navigation setup
+        val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             val tag = when (item.itemId) {
                 R.id.navigation_home -> TAG_HOME
@@ -98,26 +85,24 @@ class MainActivity : BaseActivity() {
                 else -> TAG_HOME
             }
             switchFragment(tag)
-            updateHeaderForSelectedPage(item.itemId)
             true
         }
     }
 
-    // Efficient fragment switching with hide/show
+    // Efficient fragment switching without recreating
     private fun switchFragment(tag: String) {
         val transaction = supportFragmentManager.beginTransaction()
-
         val fragments = listOf(TAG_HOME, TAG_EXPLORE, TAG_MY_EVENTS, TAG_SETTINGS)
-        for (t in fragments) {
+        fragments.forEach { t ->
             supportFragmentManager.findFragmentByTag(t)?.let { transaction.hide(it) }
         }
-
-        val fragmentToShow = supportFragmentManager.findFragmentByTag(tag)
-        fragmentToShow?.let {
+        supportFragmentManager.findFragmentByTag(tag)?.let {
             transaction.show(it).commit()
             saveCurrentFragmentTag(tag)
         }
     }
+
+
 
     private fun updateHeaderForSelectedPage(menuItemId: Int) {
         when (menuItemId) {
