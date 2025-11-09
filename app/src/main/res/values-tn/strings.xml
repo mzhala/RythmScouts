@@ -130,4 +130,6 @@
     <string name="error">Phoso</string>
     <string name="notifications">Miyeliso</string>
     <string name="event_date_and_venue">Siku na Ndawo ya Xiyimo</string>
+    <string name="search_for_music_events">Lava swiyimo swa ntlangu…</string>
+
 </resources>

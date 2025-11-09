@@ -128,4 +128,6 @@
     <string name="error">Iphutha</string>
     <string name="notifications">Izaziso</string>
     <string name="event_date_and_venue">Usuku Lwemicimbi Nendawo</string>
+    <string name="search_for_music_events">Sesha imicimbi yomculo…</string>
+
 </resources>

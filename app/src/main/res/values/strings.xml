@@ -129,5 +129,6 @@
     <string name="error">Error</string>
     <string name="notifications">Notifications</string>
     <string name="event_date_and_venue">Event Date and Venue</string>
+    <string name="search_for_music_events">Search for music events…</string>
 
 </resources>
