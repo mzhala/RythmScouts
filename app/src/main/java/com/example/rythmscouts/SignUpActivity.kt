@@ -118,6 +118,14 @@ class SignUpActivity : BaseActivity() {
         val password = binding.passwordEditText.text.toString()
         val confirmPassword = binding.confirmPasswordEditText.text.toString()
 
+        // --- NEW PASSWORD STRENGTH REGEX DEFINITIONS ---
+        val uppercaseRegex = Regex(".*[A-Z].*")
+        val numberRegex = Regex(".*[0-9].*")
+        // Checks for any character that is NOT a letter or a digit
+        val specialCharRegex = Regex(".*[^a-zA-Z0-9].*")
+        // ---------------------------------------------
+
+
         if (username.isEmpty()) {
             binding.usernameInputLayout.error = "Username is required"
             isValid = false
@@ -136,6 +144,15 @@ class SignUpActivity : BaseActivity() {
             isValid = false
         } else if (password.length < 6) {
             binding.passwordInputLayout.error = "Password must be at least 6 characters"
+            isValid = false
+        } else if (!password.matches(uppercaseRegex)) {
+            binding.passwordInputLayout.error = "Password must contain at least 1 uppercase letter"
+            isValid = false
+        } else if (!password.matches(numberRegex)) {
+            binding.passwordInputLayout.error = "Password must contain at least 1 number"
+            isValid = false
+        } else if (!password.matches(specialCharRegex)) {
+            binding.passwordInputLayout.error = "Password must contain at least 1 special character (e.g., !, @, #)"
             isValid = false
         }
 

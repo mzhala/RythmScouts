@@ -186,15 +186,14 @@
             android:id="@+id/confirmPasswordTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/confirm_password"
-            android:textSize="16sp"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"
+            android:text="Password must be at least 6 characters long and include 1 uppercase letter, 1 number, and 1 special character."
+            android:textSize="12sp"
+            android:textColor="#666666"
+            android:layout_marginTop="4dp"
             app:layout_constraintTop_toBottomOf="@+id/passwordInputLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/confirmPasswordInputLayout"
