@@ -54,11 +54,14 @@ class MyEventsFragment : BaseFragment() {
         }
     }
 
+    // Inside MyEventsFragment.kt
+
     private fun setupToggleButtons() {
         // Set default toggle selection to upcoming events
         binding.toggleGroup.check(R.id.savedEventsButton)
 
-        binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+        // 🌟 CORRECTED LINE 49: Explicitly define Int and Boolean types
+        binding.toggleGroup.addOnButtonCheckedListener { _, checkedId: Int, isChecked: Boolean ->
             if (isChecked) {
                 val showPast = checkedId == R.id.pastEventsButton
                 fetchSavedEvents(showPast)
