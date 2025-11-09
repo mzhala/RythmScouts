@@ -5,11 +5,11 @@ Halalisile Mzobe ST10355256
 Mmangaliso Malunga ST10296771  
 Mvelo Mkhize ST10291856  
 
-RythmScouts is an Android mobile application for discovering, browsing, and saving music events. The app allows users to create accounts, sign in, manage their events, and authenticate with social providers. It is designed for music enthusiasts who want a simple and organized way to keep track of upcoming events.
+RythmScouts is an Android mobile application for discovering, browsing, and saving music events. The app allows users to create accounts, sign in, manage their saved events, and authenticate using a Google account. It is designed for music enthusiasts who want a simple and organized way to keep track of upcoming events.
 
 [Demo Video]
 ---
-https://youtu.be/5GU_4Ycl4D8
+https://youtu.be/YaImxK9W34c
 
 ## Table of Contents
 
@@ -55,15 +55,16 @@ The app is designed with **Material Design 3** for a clean and consistent user e
 ### 🎵 **Event Management**
 - **Fetch events from a REST API** - Browse events with search and filters
 - **Save favorite events** to Firebase Realtime Database
-- **Location-based discovery** - Find events in Cape Town and other cities
-- **Event Categories** - Comedy, Musicals, Concerts, and more
+- **City-based discovery** - Find events in Cape Town and other cities
 - **Display saved events** in a dedicated "My Events" screen
+- **Add self notes to saved events** in a simple notes popup
 
 ### 👤 **User Profile & Preferences**
-- **Personal Information** - Manage username, email, and profile details
+- **Personal Information** - Manage username, and profile details
 - **Dark Mode Support** - Complete dark theme implementation
 - **Preferences Management** - Language and notification settings
 - **Account Security** - Password changes and security settings
+- -***Language Support** - Choose between English, IsiZulu ans SeTwana
 
 ### 🎨 **UI/UX Excellence**
 - **Material Design 3** - Modern, responsive interface
@@ -229,15 +230,26 @@ Settings & Preferences
 
 Form Validation & Error Handling
 
-🚧 In Progress
-Eventbrite API Integration
+## Features Updates
 
-Real Event Data Population
+### Offline & Notifications
 
-Push Notifications
+- Offline Access – Saved events and notes are available without internet.
+- Push Notifications – Receive alerts about upcoming events, updates, or reminders.
 
-Advanced Search Filters
+### UI & Preferences
 
+- Dark Mode Support – Switch between light and dark themes.
+- Language Preferences – Change app language (English, IsiZulu, SeTswana).
+
+### Manage Profile:
+
+- Update your information, password, and preferences in the Settings screen.
+- Enable dark mode or change language preferences.
+ 
+# Saved Events
+- Notes can be added to saved events.
+- 
 📅 Planned Features
 Social Features (Event Sharing)
 
