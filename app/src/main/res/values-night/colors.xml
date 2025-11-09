@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <!-- Material Design dark theme colors -->
+        <color name="purple_200">#FFBB86FC</color> <!-- Keep the same for dark mode -->
+        <color name="purple_500">#CE93D8</color>   <!-- Lighter purple for dark mode -->
+        <color name="purple_700">#BA68C8</color>   <!-- Medium purple for dark mode -->
+        <color name="teal_200">#FF03DAC5</color>   <!-- Keep the same -->
+        <color name="teal_700">#80CBC4</color>     <!-- Lighter teal for dark mode -->
+
+        <!-- Base colors reversed for dark mode -->
+        <color name="black">#FFFFFFFF</color>      <!-- White text on dark background -->
+        <color name="white">#FF000000</color>      <!-- Black text on light elements -->
+
+        <!-- Background and surface colors -->
+        <color name="background_color">#FF121212</color> <!-- Dark background -->
+        <color name="popup_background">#FF2D2D2D</color> <!-- Dark popup background -->
+
+        <!-- Primary colors - slightly adjusted for dark mode -->
+        <color name="colorPrimary">#4F8FA8</color>          <!-- Lighter blue for dark mode -->
+        <color name="colorPrimaryVariant">#4F8FA880</color> <!-- 50% opacity lighter version -->
+        <color name="colorOnPrimary">#FFFFFF</color>        <!-- White text on primary (same) -->
+
+        <!-- Secondary colors -->
+        <color name="colorSecondary">#94A3B8</color>        <!-- Lighter secondary text -->
+        <color name="colorOnSecondary">#000000</color>      <!-- Dark text on secondary -->
+
+        <!-- Background colors reversed -->
+        <color name="colorBackground">#FF121212</color>     <!-- Dark background -->
+        <color name="colorOnBackground">#FFFFFF</color>     <!-- White text on dark background -->
+
+        <!-- Navigation colors -->
+        <color name="colorNavigationSelected">#4F8FA8</color> <!-- Lighter blue for selected -->
+        <color name="colorNavigationUnselected">#A0A0A0</color> <!-- Medium gray for unselected -->
+
+        <!-- Button colors adjusted for dark mode -->
+        <color name="colorButtonBackground">#4F8FA8</color> <!-- Primary color for buttons -->
+        <color name="colorButtonText">#FFFFFF</color>       <!-- White text on buttons -->
+
+        <!-- Toggle colors -->
+        <color name="toggle_selected">#6D8F9C</color>      <!-- Darker selected toggle -->
+        <color name="toggle_text">#FFFFFF</color>          <!-- White text for dark mode -->
+
+        <!-- Additional colors -->
+        <color name="colorPrimaryDark">#1565C0</color>     <!-- Slightly lighter dark primary -->
+        <color name="colorAccent">#FF80AB</color>          <!-- Lighter accent for dark mode -->
+
+        <!-- Gray scale adjusted for dark mode -->
+        <color name="gray_300">#FF424242</color>           <!-- Dark gray -->
+        <color name="gray_500">#FF757575</color>           <!-- Medium gray -->
+        <color name="gray_700">#FFBDBDBD</color>           <!-- Light gray -->
+
+        <!-- Tertiary colors -->
+        <color name="colorTertiary">#9C786C</color>        <!-- Adjusted tertiary -->
+        <color name="colorOnTertiary">#FFFFFF</color>      <!-- White text on tertiary -->
+
+        <!-- Surface colors -->
+        <color name="colorSurface">#FF1E1E1E</color>       <!-- Dark surface -->
+        <color name="colorOnSurface">#E1E1E1</color>       <!-- Light text on dark surface -->
+
+</resources>
