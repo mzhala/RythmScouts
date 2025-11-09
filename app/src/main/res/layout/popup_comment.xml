@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutPopupComment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/popup_background_white"
+    android:elevation="8dp">
+
+        <!-- Title -->
+    <TextView
+    android:id="@+id/tvPopupTitle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Add Comment"
+    android:textSize="18sp"
+    android:textStyle="bold"
+    android:layout_gravity="center_horizontal"
+    android:paddingBottom="8dp" />
+
+        <!-- Editable comment field -->
+    <EditText
+    android:id="@+id/etComment"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:hint="Write your comment here..."
+    android:inputType="textMultiLine"
+    android:gravity="top|start"
+    android:background="@drawable/nav_item_background"
+    android:padding="8dp" />
+
+        <!-- Save button -->
+    <Button
+    android:id="@+id/btnSaveComment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Save"
+    android:layout_marginTop="12dp"
+    android:backgroundTint="@color/black"
+    android:textColor="@android:color/white" />
+
+</LinearLayout>

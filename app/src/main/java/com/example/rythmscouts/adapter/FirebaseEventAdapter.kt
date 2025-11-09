@@ -13,12 +13,19 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rythmscouts.FirebaseHelper
 import com.example.rythmscouts.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import androidx.core.content.ContextCompat
 
 data class FirebaseEvent(
     val id: String? = null,
@@ -28,7 +35,8 @@ data class FirebaseEvent(
     val time_raw: String? = null,
     val venue: String? = null,
     val imageUrl: String? = null,
-    val buyUrl: String? = null
+    val buyUrl: String? = null,
+    val comment: String? = null
 )
 
 class FirebaseEventAdapter(
@@ -46,6 +54,8 @@ class FirebaseEventAdapter(
         val image: ImageView = view.findViewById(R.id.eventImage)
         val saveButton: Button = view.findViewById(R.id.saveButton)
         val buyButton: ImageButton = view.findViewById(R.id.buyTicketsButton)
+        val ivAddComment: ImageView = view.findViewById(R.id.ivAddComment)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -65,7 +75,43 @@ class FirebaseEventAdapter(
 
         holder.saveButton.text = if (savedEventIds.contains(eventId)) "Unsave" else "Save"
 
+        // 1. Check if the event is saved
+        val isEventSaved = savedEventIds.contains(eventId)
+
+        holder.saveButton.text = if (isEventSaved) "Unsave" else "Save"
+
+        // 2. Control the visibility of the comment ImageView based on the save status
+        holder.ivAddComment.visibility = if (isEventSaved) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
         val dbRef = FirebaseHelper.savedEventsRef(safeUsername)
+
+        // ---  CONDITIONAL TINTING IMPLEMENTATION  ---
+        // Check if the comment field is present and non-empty
+        // Fetch latest comment from Firebase to ensure tint accuracy
+        val commentRef = FirebaseDatabase.getInstance()
+            .getReference("saved_events")
+            .child(safeUsername)
+            .child(eventId)
+            .child("comment")
+
+        commentRef.get().addOnSuccessListener { snapshot ->
+            val comment = snapshot.getValue(String::class.java)
+            val hasComment = !comment.isNullOrEmpty()
+
+            holder.ivAddComment.setColorFilter(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    if (hasComment) R.color.colorPrimary else R.color.black
+                )
+            )
+        }
+
+
+
 
         holder.saveButton.setOnClickListener {
             val wasSaved = savedEventIds.contains(eventId)
@@ -88,7 +134,8 @@ class FirebaseEventAdapter(
                     "date" to holder.date.text.toString(),
                     "venue" to (event.venue ?: "Unknown Venue"),
                     "imageUrl" to (event.imageUrl ?: ""),
-                    "buyUrl" to (event.buyUrl ?: "")
+                    "buyUrl" to (event.buyUrl ?: ""),
+                    "comment" to (event.comment?: "")
                 )
 
                 eventRef.setValue(eventData)
@@ -101,6 +148,13 @@ class FirebaseEventAdapter(
                 }
             }
         }
+
+        holder.ivAddComment.setOnClickListener {
+            // Pass the existing comment text (event.comment) as the third argument
+            showCommentPopup(eventId, holder.ivAddComment, event.comment)
+        }
+
+
 
         // Buy button
         if (!event.buyUrl.isNullOrEmpty()) {
@@ -176,4 +230,60 @@ class FirebaseEventAdapter(
                 (networkCapabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI)
                         || networkCapabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR))
     }
+
+    private fun showCommentPopup(eventId: String, anchorView: View, existingComment: String?) {
+        val context = anchorView.context
+        val popupView = LayoutInflater.from(context).inflate(R.layout.popup_comment, null)
+        val etComment = popupView.findViewById<EditText>(R.id.etComment)
+        val btnSave = popupView.findViewById<Button>(R.id.btnSaveComment)
+
+        val commentRef = FirebaseDatabase.getInstance().getReference("saved_events")
+            .child(safeUsername)
+            .child(eventId)
+            .child("comment")
+
+        commentRef.get().addOnSuccessListener { snapshot ->
+            val currentComment = snapshot.getValue(String::class.java)
+
+            if (!currentComment.isNullOrEmpty()) {
+                etComment.setText(currentComment)
+            } else if (!existingComment.isNullOrEmpty()) {
+                etComment.setText(existingComment)
+            }
+
+            val displayMetrics = context.resources.displayMetrics
+            val marginPx = (16 * displayMetrics.density).toInt()
+            val popupWidth = displayMetrics.widthPixels - 2 * marginPx
+            val popup = PopupWindow(popupView, popupWidth, LinearLayout.LayoutParams.WRAP_CONTENT, true)
+            popup.isOutsideTouchable = true
+            popup.elevation = 10f
+            popup.showAtLocation(anchorView.rootView, android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL, 0, 50)
+
+            // ✅ Updated save button logic
+            btnSave.setOnClickListener {
+                val newComment = etComment.text.toString().trim()
+                commentRef.setValue(newComment).addOnSuccessListener {
+                    popup.dismiss()
+                    Toast.makeText(context, "Comment saved!", Toast.LENGTH_SHORT).show()
+
+                    // 🔹 Update the comment in memory and refresh the icon tint
+                    val position = events.indexOfFirst { it.id == eventId }
+                    if (position != -1) {
+                        val updatedEvent = events[position]
+                        events = events.toMutableList().apply {
+                            this[position] = updatedEvent.copy(comment = newComment)
+                        }
+                        notifyItemChanged(position)
+                    }
+                }.addOnFailureListener {
+                    Toast.makeText(context, "Failed to save comment", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
+
+
+
 }
