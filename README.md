@@ -389,7 +389,7 @@ jobs:
 
 <img width="1920" height="1032" alt="Screenshot 2025-10-15 010833" src="https://github.com/user-attachments/assets/fc02712b-9f25-4d03-bfc5-190f4a0dbcce" />
 
-### *AI Tools*
+### **AI Tools**
 Utilization of AI Tools in Project Development
 
 During the completion of this mobile application development project, AI tools were strategically employed as complementary resources to enhance productivity, problem-solving, and code quality. The primary AI tool utilized was ChatGPT, which served multiple functions throughout the development lifecycle.
@@ -431,10 +431,9 @@ All AI-generated code and solutions underwent thorough testing and validation to
 
 The strategic integration of AI tools complemented traditional development methodologies, resulting in a more efficient development process while maintaining code quality and adherence to project requirements. The AI's contributions were particularly valuable in areas requiring specialized knowledge, such as internationalization and modern Android architecture patterns.
 
-### *Preparation for Playstore release*
+### **Preparation for Playstore release**
+- please see folder 'Preparation for Play Store'
 
-please see attached
-screenshots
 ---
 
 ## Support & Contact
