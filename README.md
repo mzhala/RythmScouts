@@ -26,6 +26,8 @@ https://youtu.be/YaImxK9W34c
 - [Technical Stack](#technical-stack)
 - [GitHub Actions CI/CD](#github-actions-cicd)
 - [Support & Contact](#support--contact)
+- [AI Tools Used]
+- [Preparation for Playstore Release]
 
 ---
 
@@ -387,7 +389,52 @@ jobs:
 
 <img width="1920" height="1032" alt="Screenshot 2025-10-15 010833" src="https://github.com/user-attachments/assets/fc02712b-9f25-4d03-bfc5-190f4a0dbcce" />
 
+### *AI Tools*
+Utilization of AI Tools in Project Development
 
+During the completion of this mobile application development project, AI tools were strategically employed as complementary resources to enhance productivity, problem-solving, and code quality. The primary AI tool utilized was ChatGPT, which served multiple functions throughout the development lifecycle.
+
+Technical Implementation and Problem-Solving
+The AI assistant proved particularly valuable in addressing complex technical challenges, including:
+
+Firebase Authentication integration and Google Sign-In configuration
+
+Multi-language localization implementation for isiZulu and Xitsonga
+
+Material Design component customization, particularly for SearchBar and UI theming
+
+Retrofit API integration with Ticketmaster's event data service
+
+Dark mode theming and color scheme optimization
+
+When encountering specific errors such as the "lateinit property not initialized" exception or resource linking failures, the AI provided targeted debugging assistance by analyzing stack traces and suggesting appropriate fixes. This significantly reduced troubleshooting time and helped maintain development momentum.
+
+Code Enhancement and Best Practices
+The AI tool assisted in refining code architecture by:
+
+Implementing proper ViewBinding patterns for type-safe view references
+
+Suggesting optimal Fragment and Activity lifecycle management
+
+Providing guidance on Material Design 3 implementation standards
+
+Offering alternative solutions for complex UI challenges
+
+Localization and Content Development
+For the multi-language support feature, the AI provided accurate translations between English, isiZulu, and Xitsonga, ensuring cultural appropriateness and linguistic accuracy for the South African context. This included not only direct translations but also culturally adapted phrasing for music-related terminology and user interface elements.
+
+Documentation and Process Optimization
+The AI assisted in generating comprehensive feature descriptions, user-facing content, and technical documentation. It also helped optimize development workflows by suggesting efficient approaches to common mobile development tasks and providing code examples that adhered to Android development best practices.
+
+Ethical Usage and Verification
+All AI-generated code and solutions underwent thorough testing and validation to ensure functionality, security, and performance. The AI served as a collaborative tool rather than a replacement for critical thinking, with all final implementation decisions being made based on technical requirements and project specifications.
+
+The strategic integration of AI tools complemented traditional development methodologies, resulting in a more efficient development process while maintaining code quality and adherence to project requirements. The AI's contributions were particularly valuable in areas requiring specialized knowledge, such as internationalization and modern Android architecture patterns.
+
+### *Preparation for Playstore release*
+
+please see attached
+screenshots
 ---
 
 ## Support & Contact
