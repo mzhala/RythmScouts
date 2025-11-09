@@ -66,7 +66,7 @@
     <string name="forgot_password">Ukhohlwe Iphasiwedi?</string>
     <string name="or_sign_in_with">noma ngena ngemvume nge</string>
     <string name="sign_in_with_google">Ngena ngemvume nge-Google</string>
-    <string name="don_t_have_an_account_sign_up">Awunawo i-akhawunti?</string>
+    <string name="don_t_have_an_account_sign_up">Awunawo i-akhawunti? Bhalisa</string>
     <string name="create_your_account">Yakha i-akhawunti yakho</string>
     <string name="enter_username">Faka Igama Lomsebenzisi</string>
     <string name="enter_email_address">Faka Ikheli Le-imeyili</string>
@@ -128,6 +128,4 @@
     <string name="error">Iphutha</string>
     <string name="notifications">Izaziso</string>
     <string name="event_date_and_venue">Usuku Lwemicimbi Nendawo</string>
-    <string name="sign_in_title">Ngena ku-akhawunti yakho</string>
-    <string name="don_t_have_an_account_sign_up_2">Bhalisa</string>
 </resources>

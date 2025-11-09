@@ -67,7 +67,7 @@
     <string name="forgot_password">U rivalile Xikombelo?</string>
     <string name="or_sign_in_with">kumbe ngena hi</string>
     <string name="sign_in_with_google">Ngena hi Google</string>
-    <string name="don_t_have_an_account_sign_up">A wu na akhawunti?</string>
+    <string name="don_t_have_an_account_sign_up">A wu na akhawunti? TLARISA</string>
     <string name="create_your_account">Tumbuluxa akhawunti ya wena</string>
     <string name="enter_username">Ngena Vito ra Mutirhisi</string>
     <string name="enter_email_address">Ngena Xiyimo xa Imeyili</string>
@@ -130,6 +130,4 @@
     <string name="error">Phoso</string>
     <string name="notifications">Miyeliso</string>
     <string name="event_date_and_venue">Siku na Ndawo ya Xiyimo</string>
-    <string name="sign_in_title">Tsenela akhaonto ya gago</string>
-    <string name="don_t_have_an_account_sign_up_2">TLARISA</string>
 </resources>
