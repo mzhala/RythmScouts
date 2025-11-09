@@ -94,11 +94,11 @@ class MyEventsFragment : BaseFragment() {
 
                 if (!isAdded || _binding == null) return
 
-                // 1️⃣ Collect saved event IDs
+                //  Collect saved event IDs
                 val savedIds = snapshot.children.mapNotNull { it.key }
                 eventAdapter.savedEventIds = savedIds
 
-                // 2️⃣ Prepare list of events to display
+                //  Prepare list of events to display
                 val now = LocalDate.now()
                 val events = snapshot.children.mapNotNull { child ->
                     // ... (keep the existing event mapping logic here) ...

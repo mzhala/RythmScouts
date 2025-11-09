@@ -41,7 +41,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/see_all"
                 android:textColor="@color/colorPrimary"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
@@ -90,13 +91,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
+
             <TextView
                 android:id="@+id/endingSoonSeeAll"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="22dp"
                 android:text="@string/see_all"
                 android:textColor="@color/colorPrimary"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <androidx.cardview.widget.CardView

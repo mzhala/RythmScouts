@@ -79,9 +79,9 @@
     <string name="close">Close</string>
     <string name="discover_events">Discover Events</string>
     <string name="never_miss_the_events_you_love">Never miss the events you love!</string>
-    <string name="happening_today">Happening Today</string>
+    <string name="happening_today">Happening Soon</string>
     <string name="see_all">See All</string>
-    <string name="tickets_ending_soon">Tickets Ending Soon</string>
+    <string name="tickets_ending_soon">Ticket Sales Ending Soon</string>
     <string name="upcoming_events">Upcoming Events</string>
     <string name="past_events">Past Events</string>
     <string name="event_title">Event Title</string>

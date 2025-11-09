@@ -8,7 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="background_color">#FFFFFFFF</color>
-
+    <color name="popup_background">#FFFB8A</color>
     <color name="colorPrimary">#37738B</color>          <!-- main app color -->
     <color name="colorPrimaryVariant">#37738B80</color> <!-- 50% opacity version -->
     <color name="colorOnPrimary">#FFFFFF</color>        <!-- text on primary -->
