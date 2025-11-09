@@ -40,6 +40,7 @@ class MyEventsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupToggleButtons()
+        //refreshEvents()
         fetchSavedEvents(showPast = false)
     }
 
@@ -54,15 +55,25 @@ class MyEventsFragment : BaseFragment() {
     }
 
     private fun setupToggleButtons() {
+        // Set default toggle selection to upcoming events
         binding.toggleGroup.check(R.id.savedEventsButton)
+
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                when (checkedId) {
-                    R.id.savedEventsButton -> fetchSavedEvents(showPast = false)
-                    R.id.pastEventsButton -> fetchSavedEvents(showPast = true)
-                }
+                val showPast = checkedId == R.id.pastEventsButton
+                fetchSavedEvents(showPast)
             }
         }
+
+        // Immediately fetch upcoming events on startup
+        fetchSavedEvents(showPast = false)
+    }
+
+
+
+    private fun refreshEvents() {
+        val showPast = binding.toggleGroup.checkedButtonId == R.id.pastEventsButton
+        fetchSavedEvents(showPast)
     }
 
     private fun fetchSavedEvents(showPast: Boolean) {
@@ -76,33 +87,34 @@ class MyEventsFragment : BaseFragment() {
             .getReference("saved_events")
             .child(safeEmail)
 
-        dbRef.get().addOnSuccessListener { snapshot ->
-            if (!isAdded || _binding == null) return@addOnSuccessListener
+        // 💡 CRITICAL CHANGE: Use addValueEventListener for real-time updates
+        dbRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                // The existing logic now moves inside this onDataChange block
 
-            // 1️⃣ Collect saved event IDs
-            val savedIds = snapshot.children.mapNotNull { it.key }
-            eventAdapter.savedEventIds = savedIds // <-- update adapter
+                if (!isAdded || _binding == null) return
 
-            // 2️⃣ Prepare list of events to display
-            val now = LocalDate.now()
-            val events = mutableListOf<FirebaseEvent>()
+                // 1️⃣ Collect saved event IDs
+                val savedIds = snapshot.children.mapNotNull { it.key }
+                eventAdapter.savedEventIds = savedIds
 
-            snapshot.children.forEach { child ->
-                val id = child.child("id").getValue(String::class.java) ?: return@forEach
-                val name = child.child("name").getValue(String::class.java) ?: "Unknown Event"
-                val dateRaw = child.child("date_raw").getValue(String::class.java) ?: return@forEach
-                val timeRaw = child.child("time_raw").getValue(String::class.java) ?: "00:00:00"
-                val venue = child.child("venue").getValue(String::class.java) ?: "Unknown Venue"
-                val imageUrl = child.child("imageUrl").getValue(String::class.java) ?: ""
-                val buyUrl = child.child("buyUrl").getValue(String::class.java) ?: ""
-                val formattedDate = child.child("date").getValue(String::class.java)
+                // 2️⃣ Prepare list of events to display
+                val now = LocalDate.now()
+                val events = snapshot.children.mapNotNull { child ->
+                    // ... (keep the existing event mapping logic here) ...
+                    val id = child.child("id").getValue(String::class.java) ?: return@mapNotNull null
+                    val name = child.child("name").getValue(String::class.java) ?: "Unknown Event"
+                    val dateRaw = child.child("date_raw").getValue(String::class.java) ?: return@mapNotNull null
+                    val timeRaw = child.child("time_raw").getValue(String::class.java) ?: "00:00:00"
+                    val venue = child.child("venue").getValue(String::class.java) ?: "Unknown Venue"
+                    val imageUrl = child.child("imageUrl").getValue(String::class.java) ?: ""
+                    val buyUrl = child.child("buyUrl").getValue(String::class.java) ?: ""
+                    val formattedDate = child.child("date").getValue(String::class.java)
 
-                try {
-                    val eventDate = LocalDate.parse(dateRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    val isPast = eventDate.isBefore(now)
-
-                    if ((showPast && isPast) || (!showPast && !isPast)) {
-                        events.add(
+                    try {
+                        val eventDate = LocalDate.parse(dateRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        val isPast = eventDate.isBefore(now)
+                        if ((showPast && isPast) || (!showPast && !isPast)) {
                             FirebaseEvent(
                                 id = id,
                                 name = name,
@@ -113,22 +125,24 @@ class MyEventsFragment : BaseFragment() {
                                 imageUrl = imageUrl,
                                 buyUrl = buyUrl
                             )
-                        )
+                        } else null
+                    } catch (e: DateTimeParseException) {
+                        Log.e("MyEventsFragment", "Failed to parse date: $dateRaw")
+                        null
                     }
-                } catch (e: DateTimeParseException) {
-                    Log.e("MyEventsFragment", "Failed to parse date: $dateRaw")
+                }
+
+                // 3️⃣ Update adapter
+                if (isAdded && _binding != null) {
+                    eventAdapter.updateData(events)
+                    binding.eventsCountTextView.text = "${events.size} events"
                 }
             }
 
-            // 3️⃣ Update adapter
-            if (isAdded && _binding != null) {
-                eventAdapter.updateData(events)
-                binding.eventsCountTextView.text = "${events.size} events"
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                Log.e("MyEventsFragment", "Failed to read value.", error.toException())
             }
-
-        }.addOnFailureListener { e ->
-            e.printStackTrace()
-        }
+        })
     }
 
     override fun onDestroyView() {

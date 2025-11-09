@@ -29,16 +29,12 @@ class SettingsFragment : Fragment() {
     private var areNotificationsEnabled = true
 
     private lateinit var languageDropdown: AutoCompleteTextView
-    private val languageCodes = arrayOf("en", "zu", "tn")
     private val CHANNEL_ID = "notifications_channel"
     private lateinit var profileImageView: ImageView
 
-    private val languageNames: Array<String>
-        get() = when (getPersistedLanguage()) {
-            "zu" -> arrayOf("isiNgisi", "isiZulu", "Setswana")
-            "tn" -> arrayOf("Sekgowa", "isiZulu", "Setswana")
-            else -> arrayOf("English", "isiZulu", "Setswana")
-        }
+    // --- Language ---
+    private val languageCodes = arrayOf("en", "zu", "tn")
+    private val languageNames = arrayOf("English", "isiZulu", "Setswana")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_settings, container, false)
@@ -133,42 +129,33 @@ class SettingsFragment : Fragment() {
     }
 
     // --- Language ---
+    // --- Language ---
     private fun initLanguageDropdown() {
         languageDropdown = rootView?.findViewById(R.id.languageDropdown) ?: return
 
-        // All language codes
-        val codes = arrayOf("en", "zu", "tn")
-
-        // Names for dropdown according to current app language
-        val currentLanguage = getPersistedLanguage()
-        val names = when (currentLanguage) {
-            "zu" -> arrayOf("isiNgisi", "isiZulu", "Setswana")
-            "tn" -> arrayOf("Sekgowa", "isiZulu", "Setswana")
-            else -> arrayOf("English", "isiZulu", "Setswana")
-        }
-
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, names)
+        // Fixed adapter with all three languages
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
         languageDropdown.setAdapter(adapter)
 
-        // Set currently selected item
-        val currentIndex = codes.indexOf(currentLanguage)
-        if (currentIndex != -1) {
-            languageDropdown.setText(names[currentIndex], false)
-        }
+        // 💡 **CRITICAL FIX 1: Prevent filtering for dropdown use**
+        // By setting the threshold very high, no text will ever reach it,
+        // and the dropdown will show all items when clicked.
+        languageDropdown.threshold = 100
 
-        languageDropdown.post {
-            languageDropdown.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT)
+        // Set dropdown text to currently stored language
+        val currentIndex = languageCodes.indexOf(getPersistedLanguage())
+        if (currentIndex != -1) {
+            // Set text without applying a filter
+            languageDropdown.setText(languageNames[currentIndex], false)
         }
 
         languageDropdown.setOnItemClickListener { _, _, position, _ ->
-            val selectedCode = codes[position]
+            val selectedCode = languageCodes[position]
             if (selectedCode != getPersistedLanguage()) {
                 showLanguageChangeConfirmation(selectedCode)
             }
         }
     }
-
-
 
 
     private fun showLanguageChangeConfirmation(languageCode: String) {
@@ -183,7 +170,13 @@ class SettingsFragment : Fragment() {
             .setTitle(getString(R.string.select_language))
             .setMessage(message)
             .setPositiveButton(positiveButton) { _, _ -> changeAppLanguage(languageCode) }
-            .setNegativeButton(negativeButton, null)
+            .setNegativeButton(negativeButton) { _, _ ->
+                // Reset dropdown text to currently stored language
+                val resetIndex = languageCodes.indexOf(getPersistedLanguage())
+                if (resetIndex != -1) {
+                    languageDropdown.setText(languageNames[resetIndex], false)
+                }
+            }
             .show()
     }
 
