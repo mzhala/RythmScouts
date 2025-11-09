@@ -272,7 +272,8 @@ class SettingsFragment : Fragment() {
     }
 
     private fun changePassword() {
-        showPopup(getString(R.string.password_changed))
+        // This button now triggers the password reset email
+        performPasswordReset()
     }
 
     // --- Avatar picker ---
@@ -321,6 +322,37 @@ class SettingsFragment : Fragment() {
             val resId = snapshot.getValue(Int::class.java)
             profileImageView.setImageResource(resId ?: R.drawable.ic_default_profile_picture)
         }
+    }
+
+    private fun performPasswordReset() {
+        val auth = FirebaseAuth.getInstance()
+        val email = auth.currentUser?.email
+
+        if (email == null) {
+            showPopup(getString(R.string.error_no_email)) // Handle case where user isn't logged in
+            return
+        }
+
+        val changePasswordButton = rootView?.findViewById<Button>(R.id.changePasswordButton) ?: return
+
+        changePasswordButton.isEnabled = false
+        changePasswordButton.text = getString(R.string.sending_email)
+
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                changePasswordButton.isEnabled = true
+                changePasswordButton.text = getString(R.string.send_reset_email)
+
+                if (task.isSuccessful) {
+                    // Use the existing popup mechanism for a cleaner alert
+                    showPopup(getString(R.string.reset_email_sent))
+                    // You may want to sign out the user after sending the reset email for security
+                    // performSignOut()
+                } else {
+                    val errorMessage = task.exception?.message ?: getString(R.string.failed_to_send_reset_email)
+                    showPopup("${getString(R.string.error)}: $errorMessage")
+                }
+            }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
