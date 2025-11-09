@@ -91,22 +91,27 @@ class FirebaseEventAdapter(
 
         // ---  CONDITIONAL TINTING IMPLEMENTATION  ---
         // Check if the comment field is present and non-empty
-        val hasComment = !event.comment.isNullOrEmpty()
+        // Fetch latest comment from Firebase to ensure tint accuracy
+        val commentRef = FirebaseDatabase.getInstance()
+            .getReference("saved_events")
+            .child(safeUsername)
+            .child(eventId)
+            .child("comment")
 
-        // Determine the color resource ID
-        val colorResId = if (hasComment) {
-            R.color.colorPrimary // Use the primary color if a comment exists
-        } else {
-            R.color.black       // Use black if no comment exists
+        commentRef.get().addOnSuccessListener { snapshot ->
+            val comment = snapshot.getValue(String::class.java)
+            val hasComment = !comment.isNullOrEmpty()
+
+            holder.ivAddComment.setColorFilter(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    if (hasComment) R.color.colorPrimary else R.color.black
+                )
+            )
         }
 
-        // Get the actual color value
-        // NOTE: This now requires the ContextCompat import
-        val color = androidx.core.content.ContextCompat.getColor(holder.itemView.context, colorResId)
 
-        // Apply the tint
-        holder.ivAddComment.setColorFilter(color)
-        // --- END TINTING IMPLEMENTATION ---
+
 
         holder.saveButton.setOnClickListener {
             val wasSaved = savedEventIds.contains(eventId)
@@ -129,7 +134,8 @@ class FirebaseEventAdapter(
                     "date" to holder.date.text.toString(),
                     "venue" to (event.venue ?: "Unknown Venue"),
                     "imageUrl" to (event.imageUrl ?: ""),
-                    "buyUrl" to (event.buyUrl ?: "")
+                    "buyUrl" to (event.buyUrl ?: ""),
+                    "comment" to (event.comment?: "")
                 )
 
                 eventRef.setValue(eventData)
@@ -225,41 +231,25 @@ class FirebaseEventAdapter(
                         || networkCapabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
-    // Change function signature
-    // Inside FirebaseEventAdapter.kt
-
-// ... (existing code) ...
-
-    // Change function signature
-    // Inside FirebaseEventAdapter.kt
-
     private fun showCommentPopup(eventId: String, anchorView: View, existingComment: String?) {
         val context = anchorView.context
         val popupView = LayoutInflater.from(context).inflate(R.layout.popup_comment, null)
         val etComment = popupView.findViewById<EditText>(R.id.etComment)
         val btnSave = popupView.findViewById<Button>(R.id.btnSaveComment)
 
-        // 1. Define the correct Firebase reference for the comment
-        // Path: saved_events/{emailaddress}/{event_id}/comment
         val commentRef = FirebaseDatabase.getInstance().getReference("saved_events")
             .child(safeUsername)
             .child(eventId)
             .child("comment")
 
-        // 2. Fetch the current comment from Firebase
         commentRef.get().addOnSuccessListener { snapshot ->
-            // Get the current comment text from the database
             val currentComment = snapshot.getValue(String::class.java)
 
-            // 3. Pre-fill the EditText with the current comment
             if (!currentComment.isNullOrEmpty()) {
                 etComment.setText(currentComment)
             } else if (!existingComment.isNullOrEmpty()) {
-                // Fallback to the passed comment (useful if fetched event data is fresh)
                 etComment.setText(existingComment)
             }
-
-            // 4. Create and Show the PopupWindow only after fetching data
 
             val displayMetrics = context.resources.displayMetrics
             val marginPx = (16 * displayMetrics.density).toInt()
@@ -267,29 +257,31 @@ class FirebaseEventAdapter(
             val popup = PopupWindow(popupView, popupWidth, LinearLayout.LayoutParams.WRAP_CONTENT, true)
             popup.isOutsideTouchable = true
             popup.elevation = 10f
+            popup.showAtLocation(anchorView.rootView, android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL, 0, 50)
 
-            // Show popup below the clicked ImageView
-            popup.showAsDropDown(anchorView, 0, 10)
-
-            // 5. Save button logic (remains the same)
+            // ✅ Updated save button logic
             btnSave.setOnClickListener {
                 val newComment = etComment.text.toString().trim()
                 commentRef.setValue(newComment).addOnSuccessListener {
                     popup.dismiss()
                     Toast.makeText(context, "Comment saved!", Toast.LENGTH_SHORT).show()
 
-                    // 💡 CRITICAL: Tell the adapter to refresh this item
-                    // to update the icon tint immediately.
+                    // 🔹 Update the comment in memory and refresh the icon tint
                     val position = events.indexOfFirst { it.id == eventId }
-                    if (position != -1) notifyItemChanged(position)
-
+                    if (position != -1) {
+                        val updatedEvent = events[position]
+                        events = events.toMutableList().apply {
+                            this[position] = updatedEvent.copy(comment = newComment)
+                        }
+                        notifyItemChanged(position)
+                    }
                 }.addOnFailureListener {
                     Toast.makeText(context, "Failed to save comment", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-        // Note: No need for .addOnFailureListener on the initial 'get()' unless you want specific error handling
     }
+
 
 
 

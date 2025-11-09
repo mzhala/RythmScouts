@@ -55,7 +55,8 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/todayViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="240dp"
+                android:background="@drawable/card_border"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
         </androidx.cardview.widget.CardView>
 
@@ -68,7 +69,8 @@
             android:layout_marginBottom="24dp" />
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="70dp"/>
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
         <!-- Section 2: Tickets Ending Soon -->
         <LinearLayout
@@ -112,7 +114,9 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/endingSoonViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"/>
+                android:layout_height="240dp"
+
+                android:background="@drawable/card_border"/>
         </androidx.cardview.widget.CardView>
 
         <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator

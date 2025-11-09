@@ -130,7 +130,8 @@ class EventAdapter(
                     "latitude" to (venueObj?.location?.latitude ?: ""),
                     "longitude" to (venueObj?.location?.longitude ?: ""),
                     "salesStart" to salesStart,
-                    "salesEnd" to salesEnd
+                    "salesEnd" to salesEnd,
+                    "comment" to ""
                 )
 
                 eventRef.setValue(eventData)
